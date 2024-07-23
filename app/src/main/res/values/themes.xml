@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.KindDiscussion" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.KindDiscussion" parent="android:Theme.Material.Light.NoActionBar" >
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <!-- 스플래시 화면 테마 -->
+<!--    <style name="SplashScreenTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">-->
+<!--        <item name="android:windowBackground">@drawable/home</item>-->
+<!--    </style>-->
+
+
 </resources>

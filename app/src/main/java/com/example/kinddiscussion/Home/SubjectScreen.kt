@@ -1,0 +1,206 @@
+package com.example.kinddiscussion.Home
+
+import android.graphics.Paint.Align
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.kinddiscussion.R
+import com.example.kinddiscussion.blackLine
+import com.example.kinddiscussion.grayLine
+
+
+@Composable
+fun SubjectScreen(
+    navController : NavController
+) {
+
+    BackHandler {
+        navController.popBackStack()
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        IconButton(onClick = { navController.popBackStack() }) {
+            Icon(
+                painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 6.dp)
+                    .width(35.dp)
+                    .height(35.dp)
+            )
+        }
+
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+
+
+            Icon(painter = painterResource(id = R.drawable.home) , contentDescription = null,
+                modifier = Modifier.width(100.dp).height(100.dp))
+
+        }
+        Box(modifier = Modifier.fillMaxWidth().padding(top= 10.dp)) {
+            Text("24.07.08", color = Color.Gray,
+                modifier = Modifier.padding(start = 8.dp).align(Alignment.BottomStart)
+            )
+                Text("사회", style = TextStyle(fontSize = 18.sp), modifier = Modifier.align(Alignment.Center))
+
+
+        }
+
+        blackLine()
+
+        Text("낙태를 허용해도 될까?",
+            style = TextStyle(fontSize = 16.sp), modifier = Modifier.padding(start = 16.dp)
+        )
+
+        Row(
+            modifier = Modifier.padding(start = 8.dp, top = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(painter = painterResource(id = R.drawable.home) , contentDescription = null,
+                modifier = Modifier.width(20.dp).height(20.dp))
+
+            Text("낙태는 꼭 필요한 제도이다.",
+                style = TextStyle(fontSize = 12.sp), modifier = Modifier.padding(start = 10.dp),
+                color = Color.Gray
+            )
+        }
+
+        Row(
+            modifier = Modifier.padding(start = 8.dp, top = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(painter = painterResource(id = R.drawable.home) , contentDescription = null,
+                modifier = Modifier.width(20.dp).height(20.dp))
+
+            Text("낙태는 꼭 필요한 제도이다.",
+                style = TextStyle(fontSize = 12.sp), modifier = Modifier.padding(start = 10.dp),
+                color = Color.Gray
+            )
+        }
+
+        blackLine()
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
+                        modifier = Modifier
+                            .width(60.dp)
+                            .height(60.dp)
+                    )
+                }
+
+                Text("80", style = TextStyle(fontSize = 25.sp, fontWeight = Bold))
+
+
+            }
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
+                        modifier = Modifier
+                            .width(60.dp)
+                            .height(60.dp)
+                    )
+                }
+
+                Text("80", style = TextStyle(fontSize = 25.sp, fontWeight = Bold))
+
+
+            }
+
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
+                        modifier = Modifier
+                            .width(60.dp)
+                            .height(60.dp)
+                    )
+                }
+
+                Text("80", style = TextStyle(fontSize = 25.sp, fontWeight = Bold))
+
+
+            }
+        }
+
+        blackLine()
+
+
+        Spacer(Modifier.height(120.dp))
+        Text("게시글 보러가기 (20)", modifier = Modifier.padding(start = 8.dp),
+            style = TextStyle(fontSize = 16.sp)
+        )
+        Spacer(Modifier.height(15.dp))
+        grayLine()
+
+        LazyColumn(
+            contentPadding = PaddingValues(top = 15.dp),
+            verticalArrangement = Arrangement.spacedBy(15.dp),
+            modifier = Modifier
+
+        ) {
+            items(3) { index ->
+                postPreviewLayout()
+
+            }
+        }
+
+    }
+}
+
+@Composable
+fun postPreviewLayout(
+
+) {
+    Text("50%만 허용해야한다. 왜냐하면 ~ 하기 때문이다.",  style = TextStyle(fontSize = 16.sp),
+        modifier = Modifier.padding(start = 8.dp))
+    Spacer(Modifier.height(15.dp))
+    grayLine()
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewTsdssextssFieldExample() {
+    val navController = rememberNavController()
+    SubjectScreen(navController)
+}
