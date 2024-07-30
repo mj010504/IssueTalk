@@ -80,7 +80,8 @@ fun WritePostScreen(
                 )
             }, colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.White
-            )
+            ),
+            textStyle = TextStyle(fontSize = 25.sp)
         )
         Spacer(modifier = Modifier.height(20.dp))
         // 내용

@@ -160,12 +160,13 @@ modifier = Modifier.fillMaxSize()
             onValueChange = {newText -> commentText = newText},
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = selectedColor,
-                unfocusedBorderColor = selectedColor,
+                unfocusedBorderColor = Color.Gray
 
                 ),
             placeholder = { Text("댓글 작성하기") },
             modifier = Modifier.fillMaxWidth().padding(start = 15.dp).weight(1f),
-            shape = RoundedCornerShape(15.dp)
+            shape = RoundedCornerShape(15.dp),
+            textStyle = TextStyle(fontSize = 20.sp)
         )
 
         IconButton(onClick = {  }) {

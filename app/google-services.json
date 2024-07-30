@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1029310433065",
+    "project_id": "issuetalk-7cf1f",
+    "storage_bucket": "issuetalk-7cf1f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1029310433065:android:c6d14e33629352973a1938",
+        "android_client_info": {
+          "package_name": "com.example.kinddiscussion"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdVjlI54JpmGy_tZ3mgdm_2M2tVSif9n8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

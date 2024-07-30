@@ -16,6 +16,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,34 +39,56 @@ import com.example.kinddiscussion.Home.WriteSubjectScreen
 import com.example.kinddiscussion.Menu.MenuScreen
 import com.example.kinddiscussion.Search.SearchScreen
 import com.example.kinddiscussion.ui.theme.KindDiscussionTheme
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 
+
+private lateinit var auth: FirebaseAuth
 
 class MainActivity : ComponentActivity() {
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        auth = Firebase.auth
+
         setContent {
 
-            KindDiscussionTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background,
-                ) {
 
-                    navigation()
-                }
+                KindDiscussionTheme {
+                    // A surface container using the 'background' color from the theme
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background,
+                    ) {
+                        navigation(auth)
+                    }
+
             }
         }
     }
+
+    public override fun onStart() {
+        super.onStart()
+        // Check if user is signed in (non-null) and update UI accordingly.
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+
+        }
+    }
+
 }
+
 
 
 
 @Composable
 fun navigation(
-
+    auth: FirebaseAuth
 ) {
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination?.route
@@ -98,8 +122,8 @@ fun navigation(
                 PostScreen(navController)
             }
             composable("splash") { SplashScreen(navController) }
-            composable("login") { LoginScreen(navController) }
-            composable("signUp") { SignUpScreen(navController) }
+            composable("login") { LoginScreen(navController, auth) }
+            composable("signUp") { SignUpScreen(navController, auth) }
             composable("writePost") { WritePostScreen(navController) }
         }
     }
@@ -113,8 +137,15 @@ fun blackLine(
 )  {
     Divider(
         color = Color.Black,
-        thickness = 0.7.dp,
+        thickness = 1.dp,
         modifier = Modifier.padding(vertical = 14.dp)
+    )
+}
+@Composable
+fun blackLine2() {
+    Divider(
+        color = Color.Black,
+        thickness = 1.dp,
     )
 }
 

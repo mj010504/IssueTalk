@@ -80,7 +80,7 @@ fun SubjectPostScreen(
         }
 
         Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-            writePostButton()
+            writePostButton(navController)
         }
 
         Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -93,7 +93,7 @@ fun SubjectPostScreen(
 
         ) {
             items(10) { index ->
-                postLayout()
+                postLayout(navController)
 
             }
         }
@@ -103,10 +103,10 @@ fun SubjectPostScreen(
 
 @Composable
 fun writePostButton (
-
+    navController: NavController
 ){
     OutlinedButton(
-        onClick = {  },
+        onClick = { navController.navigate("writePost")  },
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = selectedColor
         ),
@@ -121,10 +121,13 @@ fun writePostButton (
 
 @Composable
 fun postLayout (
-
+    navController: NavController
 ) {
     Box(
         modifier = Modifier.wrapContentSize()
+            .clickable {
+                navController.navigate("post")
+            }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(start = 12.dp),
@@ -143,9 +146,7 @@ fun postLayout (
                     modifier = Modifier
                         .width(20.dp)
                         .height(20.dp)
-                        .clickable {
 
-                        }
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.home), contentDescription = null
@@ -154,19 +155,10 @@ fun postLayout (
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Box(
-                    modifier = Modifier
-                        .width(20.dp)
-                        .height(20.dp)
-                        .clickable  {
 
-                        }
-                    , contentAlignment = Alignment.Center
-
-                ) {
-                    Text("25", color = Color.Gray)
-                }
+                Text("25", color = Color.Gray)
             }
+
 
             Spacer(modifier = Modifier.width(5.dp))
             Column(
@@ -177,9 +169,6 @@ fun postLayout (
                     modifier = Modifier
                         .width(20.dp)
                         .height(20.dp)
-                        .clickable {
-
-                        }
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.home), contentDescription = null
@@ -192,9 +181,6 @@ fun postLayout (
                     modifier = Modifier
                         .width(20.dp)
                         .height(20.dp)
-                        .clickable  {
-
-                        }
                     , contentAlignment = Alignment.Center
 
                 ) {

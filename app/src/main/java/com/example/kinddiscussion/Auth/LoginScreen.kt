@@ -1,6 +1,8 @@
 package com.example.kinddiscussion.Auth
 
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
@@ -29,8 +32,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,14 +46,18 @@ import com.example.kinddiscussion.R
 import com.example.kinddiscussion.SplashScreen
 import com.example.kinddiscussion.ui.theme.KindDiscussionTheme
 import com.example.kinddiscussion.ui.theme.selectedColor
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import java.time.format.TextStyle
 
 
 @Composable
 fun LoginScreen(
-    navController: NavController
+    navController: NavController,
+    auth : FirebaseAuth
 ) {
-    var idText by remember { mutableStateOf("") }
+    var emailText by remember { mutableStateOf("") }
     var pwText by remember { mutableStateOf("") }
 
     Column (
@@ -66,9 +76,10 @@ fun LoginScreen(
                     focusedBorderColor = selectedColor,
                     unfocusedBorderColor = Color.Gray
                 ),
-                value = idText,
-                onValueChange = { newText -> idText = newText },
-                placeholder = { Text("아이디") },
+                value = emailText,
+                onValueChange = { newText -> emailText = newText },
+                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp),
+                placeholder = { Text("이메일") },
                 modifier = Modifier
                     .wrapContentSize()
 
@@ -82,13 +93,48 @@ fun LoginScreen(
                 value = pwText,
                 onValueChange = { newText -> pwText = newText },
                 placeholder = { Text("비밀번호") },
+                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp),
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Password
+                ),
                 modifier = Modifier
                     .wrapContentSize()
 
         )
         Spacer(modifier = Modifier.height(10.dp))
+        val context = LocalContext.current
         Button(
-            onClick = {},
+            onClick = {
+                auth.signInWithEmailAndPassword(emailText, pwText)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            navController.navigate("home")
+                            val user = Firebase.auth.currentUser
+                            user?.let {
+                                // Name, email address, and profile photo Url
+                                val name = it.displayName
+                                val email = it.email
+                                val photoUrl = it.photoUrl
+
+                                // Check if user's email is verified
+                                val emailVerified = it.isEmailVerified
+
+                                // The user's ID, unique to the Firebase project. Do NOT use this value to
+                                // authenticate with your backend server, if you have one. Use
+                                // FirebaseUser.getIdToken() instead.
+                                val uid = it.uid
+                                Log.d("user", "name : $name, email : $email, photoUrl : $photoUrl," +
+                                        "emailVerified : $emailVerified, uid : $uid"
+                                        )
+                            }
+
+
+                        } else {
+                            Toast.makeText(context, task.exception?.message ,Toast.LENGTH_SHORT).show()
+                        }
+                    }
+            },
             colors = ButtonDefaults.buttonColors(selectedColor),
             modifier = Modifier
                 .fillMaxWidth()
@@ -114,6 +160,7 @@ fun LoginScreen(
 fun lPreview() {
     KindDiscussionTheme {
         val navController = rememberNavController()
-        LoginScreen(navController)
+        val auth = FirebaseAuth.getInstance()
+        LoginScreen(navController, auth)
     }
 }

@@ -29,6 +29,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,7 +53,9 @@ fun WriteSubjectScreen(
     BackHandler {
         navController.popBackStack()
     }
-    var selectedField  by remember { mutableStateOf<String?>(null) }
+    var selectedField  by rememberSaveable { mutableStateOf<String>("분야") }
+
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -62,7 +65,7 @@ fun WriteSubjectScreen(
         }
 
         Spacer(modifier = Modifier.height(10.dp))
-        fieldDropDownMenu(onFieldChange = {selectedField = it})
+        fieldDropDownMenu(selectedField ,onFieldChange = {selectedField = it})
         subjectTextField()
         registerSubjectButton()
     }
@@ -101,7 +104,7 @@ fun registerSubjectButton (
 
 @Composable
 fun fieldDropDownMenu(
-    onFieldChange : (String?) -> Unit
+    fieldText : String, onFieldChange : (String) -> Unit
 ) {
 
     var isDropDownMenuExpanded by remember { mutableStateOf(false) }
@@ -119,7 +122,9 @@ fun fieldDropDownMenu(
         ) {
 
 
-                Text(text = "분야", style = TextStyle(fontSize = 20.sp))
+                Text(text = fieldText
+
+                     , style = TextStyle(fontSize = 20.sp))
                 Spacer(modifier = Modifier.width(10.dp))
                 Icon(
                     painter = painterResource(R.drawable.arrow_drop_down),
@@ -128,7 +133,7 @@ fun fieldDropDownMenu(
 
         }
 
-        val fields = listOf("전체", "사회", "정치", "경제", "연예", "기타")
+        val fields = listOf<String>("전체", "사회", "정치", "경제", "연예", "기타")
         DropdownMenu(
             modifier = Modifier
                 .wrapContentSize(),
@@ -137,7 +142,10 @@ fun fieldDropDownMenu(
 
         ) {
             fields.forEach{fieldName ->
-                DropdownMenuItem(onClick = {onFieldChange(fieldName)}) {
+                DropdownMenuItem(onClick = {
+                    onFieldChange(fieldName)
+                    isDropDownMenuExpanded = false}
+                ) {
                     Text(fieldName)
                 }
             }

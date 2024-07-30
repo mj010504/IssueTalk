@@ -2,6 +2,7 @@ package com.example.kinddiscussion.Home
 
 import android.graphics.Paint.Align
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +34,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.kinddiscussion.R
 import com.example.kinddiscussion.blackLine
+import com.example.kinddiscussion.blackLine2
 import com.example.kinddiscussion.grayLine
 
 
@@ -47,15 +50,28 @@ fun SubjectScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        IconButton(onClick = { navController.popBackStack() }) {
-            Icon(
-                painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
-                modifier = Modifier
-                    .padding(start = 6.dp)
-                    .width(35.dp)
-                    .height(35.dp)
-            )
+        Row(modifier = Modifier.fillMaxWidth() ) {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
+                    modifier = Modifier
+                        .padding(start = 6.dp)
+                        .width(35.dp)
+                        .height(35.dp)
+                )
+            }
+            Spacer(Modifier.weight(1f))
+            IconButton(onClick = { } ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
+                    modifier = Modifier
+                        .width(20.dp)
+                        .height(20.dp)
+                )
+            }
+
         }
+
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
 
@@ -167,35 +183,44 @@ fun SubjectScreen(
 
 
         Spacer(Modifier.height(120.dp))
-        Text("게시글 보러가기 (20)", modifier = Modifier.padding(start = 8.dp),
-            style = TextStyle(fontSize = 16.sp)
-        )
-        Spacer(Modifier.height(15.dp))
-        grayLine()
-
-        LazyColumn(
-            contentPadding = PaddingValues(top = 15.dp),
-            verticalArrangement = Arrangement.spacedBy(15.dp),
-            modifier = Modifier
-
-        ) {
-            items(3) { index ->
-                postPreviewLayout()
-
-            }
+        TextButton(onClick = {navController.navigate("subjectPost")}) {
+            Text("게시글 보러가기 (20)", modifier = Modifier.padding(start = 8.dp),
+                style = TextStyle(fontSize = 16.sp), color = Color.Black
+            )
         }
+
+
+
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(15.dp),
+                modifier = Modifier
+
+            ) {
+                items(3) { index ->
+                    postPreviewLayout(navController)
+
+                }
+            }
 
     }
 }
 
 @Composable
 fun postPreviewLayout(
-
+    navController: NavController
 ) {
-    Text("50%만 허용해야한다. 왜냐하면 ~ 하기 때문이다.",  style = TextStyle(fontSize = 16.sp),
-        modifier = Modifier.padding(start = 8.dp))
+    blackLine2()
     Spacer(Modifier.height(15.dp))
-    grayLine()
+    Box(
+        modifier = Modifier.clickable {
+            navController.navigate("subjectPost")
+        }.fillMaxWidth()
+    ) {
+        Text("50%만 허용해야한다. 왜냐하면 ~ 하기 때문이다.",  style = TextStyle(fontSize = 16.sp),
+            modifier = Modifier.padding(start = 8.dp))
+    }
+
+
 }
 
 @Preview(showBackground = true)

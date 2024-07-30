@@ -1,6 +1,8 @@
+
 package com.example.kinddiscussion.Home
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
@@ -79,7 +82,7 @@ fun HomeScreen(
         ) {
             items(3) { index ->
 
-                subjectLayout()
+                subjectLayout(navCotnroller)
             }
         }
     }
@@ -88,7 +91,7 @@ fun HomeScreen(
 
 @Composable
 fun writeSubjectButton (
-    navCotnroller : NavController,
+    navCotnroller : NavController
 
 ) {
     Row(
@@ -112,66 +115,86 @@ fun writeSubjectButton (
 }
 
 @Composable
-fun subjectLayout() {
-    Box() {
-        Row() {
+fun subjectLayout(
+    navCotnroller: NavController
+) {
+        Box(
+            modifier = Modifier.clickable {
+                navCotnroller.navigate("subject")
+            }
+                .wrapContentSize()
+        ) {
+            Row() {
+                Icon(
+                    painter = painterResource(id = R.drawable.home), contentDescription = null,
+                    modifier = Modifier
+                        .padding(start = 6.dp)
+                        .width(30.dp)
+                        .height(30.dp)
+                )
+
+                Text(
+                    "낙태를 허용해도 될까?",
+                    modifier = Modifier.weight(1f).padding(start = 18.dp, end = 15.dp),
+                    maxLines = 1
+                )
+
+            }
+        }
+
+
+    Box(
+        modifier = Modifier.clickable {
+            navCotnroller.navigate("subject")
+        }
+            .wrapContentSize()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        )
+        {
+            Text("사회", modifier = Modifier.padding(start = 6.dp, top = 3.dp))
             Icon(
                 painter = painterResource(id = R.drawable.home), contentDescription = null,
                 modifier = Modifier
-                    .padding(start = 6.dp)
-                    .width(30.dp)
-                    .height(30.dp)
+                    .padding(start = 18.dp)
+                    .width(20.dp)
+                    .height(20.dp)
+
             )
 
-            Text("낙태를 허용해도 될까?", modifier = Modifier.weight(1f).padding(start = 18.dp, end = 15.dp),
-                maxLines = 1)
+            Text("10", modifier = Modifier.padding(top = 5.dp, start = 4.dp))
+            Icon(
+                painter = painterResource(id = R.drawable.home), contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .width(20.dp)
+                    .height(20.dp)
+
+            )
+
+            Text("10", modifier = Modifier.padding(top = 5.dp, start = 4.dp))
+
+            Icon(
+                painter = painterResource(id = R.drawable.home), contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .width(20.dp)
+                    .height(20.dp)
+
+            )
+
+            Text("10", modifier = Modifier.padding(top = 5.dp, start = 4.dp))
+
+            Text(
+                "24.07.07",
+                modifier = Modifier.padding(top = 5.dp, start = 11.dp),
+                color = Color.Gray,
+                style = TextStyle(fontSize = 12.sp)
+            )
+
 
         }
-    }
-
-    Row(
-        modifier = Modifier.fillMaxWidth()
-    )
-    {
-        Text("사회", modifier = Modifier.padding(start = 6.dp, top = 3.dp))
-        Icon(
-            painter = painterResource(id = R.drawable.home), contentDescription = null,
-            modifier = Modifier
-                .padding(start = 18.dp)
-                .width(20.dp)
-                .height(20.dp)
-
-        )
-
-        Text("10", modifier = Modifier.padding(top = 5.dp, start= 4.dp))
-        Icon(
-            painter = painterResource(id = R.drawable.home), contentDescription = null,
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .width(20.dp)
-                .height(20.dp)
-
-        )
-
-        Text("10", modifier = Modifier.padding(top = 5.dp, start= 4.dp))
-
-        Icon(
-            painter = painterResource(id = R.drawable.home), contentDescription = null,
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .width(20.dp)
-                .height(20.dp)
-
-        )
-
-        Text("10", modifier = Modifier.padding(top = 5.dp, start= 4.dp))
-
-        Text("24.07.07", modifier = Modifier.padding(top = 5.dp, start= 11.dp), color = Color.Gray
-        ,style = TextStyle(fontSize = 12.sp)
-        )
-
-
-
     }
 
     blackLine()

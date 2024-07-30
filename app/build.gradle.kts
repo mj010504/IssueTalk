@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -51,6 +52,7 @@ android {
 
 dependencies {
 
+    implementation("com.google.firebase:firebase-auth:23.0.0")
     val nav_version = "2.7.7"
 
     implementation("androidx.core:core-ktx:1.12.0")
@@ -73,5 +75,9 @@ dependencies {
     implementation ("androidx.navigation:navigation-compose:$nav_version")
     implementation("com.google.accompanist:accompanist-pager:0.28.0")
     implementation("com.google.accompanist:accompanist-pager-indicators:0.28.0")
+
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth-ktx:23.0.0")
 
 }
