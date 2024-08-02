@@ -64,7 +64,8 @@ fun SubjectPostScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.home), contentDescription = null,
+                painter = painterResource(id = R.drawable.politics), contentDescription = null,
+                tint = Color.Unspecified,
                 modifier = Modifier
                     .padding(start = 10.dp)
                     .width(45.dp)
@@ -149,7 +150,8 @@ fun postLayout (
 
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.home), contentDescription = null
+                        painter = painterResource(id = R.drawable.like_ic), contentDescription = null,
+                        tint = Color.Unspecified
                     )
                 }
 
@@ -171,7 +173,8 @@ fun postLayout (
                         .height(20.dp)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.home), contentDescription = null
+                        painter = painterResource(id = R.drawable.comment), contentDescription = null,
+                        tint = Color.Unspecified
                     )
                 }
 

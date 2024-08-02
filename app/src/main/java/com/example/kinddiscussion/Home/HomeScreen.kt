@@ -27,8 +27,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,6 +39,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.kinddiscussion.R
+import com.example.kinddiscussion.SplashScreen
 
 import com.example.kinddiscussion.blackLine
 import com.example.kinddiscussion.ui.theme.selectedColor
@@ -64,7 +67,7 @@ fun HomeScreen(
         ){
             tabs.forEachIndexed {index, title ->
                 Tab(
-                    text = {Text(title)},
+                    text = {Text(title, style = TextStyle(fontWeight = FontWeight.Bold))},
                     selected = selectedTabIndex == index,
                     onClick = { selectedTabIndex = index}
 
@@ -126,7 +129,8 @@ fun subjectLayout(
         ) {
             Row() {
                 Icon(
-                    painter = painterResource(id = R.drawable.home), contentDescription = null,
+                    painter = painterResource(id = R.drawable.society), contentDescription = null,
+                    tint = Color.Unspecified,
                     modifier = Modifier
                         .padding(start = 6.dp)
                         .width(30.dp)
@@ -153,9 +157,11 @@ fun subjectLayout(
             modifier = Modifier.fillMaxWidth()
         )
         {
-            Text("사회", modifier = Modifier.padding(start = 6.dp, top = 3.dp))
+            Text("사회", modifier = Modifier.padding(start = 6.dp, top = 3.dp)
+            ,style  =TextStyle(fontWeight = FontWeight.Bold)
+            )
             Icon(
-                painter = painterResource(id = R.drawable.home), contentDescription = null,
+                painter = painterResource(id = R.drawable.agree), contentDescription = null,
                 modifier = Modifier
                     .padding(start = 18.dp)
                     .width(20.dp)
@@ -165,7 +171,7 @@ fun subjectLayout(
 
             Text("10", modifier = Modifier.padding(top = 5.dp, start = 4.dp))
             Icon(
-                painter = painterResource(id = R.drawable.home), contentDescription = null,
+                painter = painterResource(id = R.drawable.disagree), contentDescription = null,
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .width(20.dp)
@@ -176,7 +182,7 @@ fun subjectLayout(
             Text("10", modifier = Modifier.padding(top = 5.dp, start = 4.dp))
 
             Icon(
-                painter = painterResource(id = R.drawable.home), contentDescription = null,
+                painter = painterResource(id = R.drawable.scale), contentDescription = null,
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .width(20.dp)

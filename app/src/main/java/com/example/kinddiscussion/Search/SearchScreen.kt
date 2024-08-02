@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.KeyboardActions
@@ -99,7 +100,8 @@ fun SearchScreen(
 
 
             IconButton(onClick = { }) {
-                Icon(painter = painterResource(id = R.drawable.search), contentDescription = null)
+                Icon(painter = painterResource(id = R.drawable.search_ic), contentDescription = null,
+                    modifier = Modifier.width(25.dp).height(25.dp))
             }
         }
 

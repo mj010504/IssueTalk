@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material3.Divider
 
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +42,7 @@ import com.example.kinddiscussion.Home.WriteSubjectScreen
 import com.example.kinddiscussion.Menu.MenuScreen
 import com.example.kinddiscussion.Search.SearchScreen
 import com.example.kinddiscussion.ui.theme.KindDiscussionTheme
+import com.example.kinddiscussion.ui.theme.selectedColor
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -63,7 +67,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background,
                     ) {
-                        navigation(auth)
+                        navigation()
                     }
 
             }
@@ -86,7 +90,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun navigation(
-    auth: FirebaseAuth
+
 ) {
 
     val navController = rememberNavController()
@@ -122,8 +126,8 @@ fun navigation(
                 PostScreen(navController)
             }
             composable("splash") { SplashScreen(navController) }
-            composable("login") { LoginScreen(navController, auth) }
-            composable("signUp") { SignUpScreen(navController, auth) }
+            composable("login") { LoginScreen(navController) }
+            composable("signUp") { SignUpScreen(navController) }
             composable("writePost") { WritePostScreen(navController) }
         }
     }
@@ -150,18 +154,6 @@ fun blackLine2() {
 }
 
 @Composable
-fun verticalBlackLine(
-
-) {
-    Box(
-        modifier = Modifier
-            .height(70.dp)
-            .width(0.7.dp)
-            .background(color = Color.Black)
-    )
-}
-
-@Composable
 fun grayLine(
     modifier : Modifier = Modifier
 )  {
@@ -172,6 +164,43 @@ fun grayLine(
 
     )
 }
+@Composable
+fun checkDialog(
+    onDismiss : () -> Unit ,dialogText : String
+) {
+    AlertDialog(
+        onDismissRequest = { onDismiss()},
+        text = { Text(dialogText) },
+        confirmButton = {
+            TextButton(onClick = {  onDismiss() } ) {
+                Text("확인", color = selectedColor)
+            }
+        }
+    )
+}
+
+@Composable
+fun checkCancleDialog (
+    onCheck : () -> Unit, onDismiss : () -> Unit, dialogText : String
+) {
+    AlertDialog(
+        onDismissRequest = {onDismiss()},
+        text = { Text(dialogText) },
+        confirmButton = {
+            TextButton(onClick = {  onCheck() } ) {
+                Text("확인", color = selectedColor)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = {  onDismiss() } ) {
+                Text("취소", color = selectedColor)
+            }
+        }
+    )
+}
+
+
+
 
 @Preview(showBackground = true)
 @Composable

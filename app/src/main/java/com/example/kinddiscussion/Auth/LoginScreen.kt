@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
@@ -44,6 +45,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.kinddiscussion.R
 import com.example.kinddiscussion.SplashScreen
+import com.example.kinddiscussion.checkDialog
 import com.example.kinddiscussion.ui.theme.KindDiscussionTheme
 import com.example.kinddiscussion.ui.theme.selectedColor
 import com.google.firebase.Firebase
@@ -54,21 +56,25 @@ import java.time.format.TextStyle
 
 @Composable
 fun LoginScreen(
-    navController: NavController,
-    auth : FirebaseAuth
+    navController: NavController
 ) {
     var emailText by remember { mutableStateOf("") }
     var pwText by remember { mutableStateOf("") }
+    var showNotTextDialog by remember {mutableStateOf(false)}
+    var showLoginFailedDialog by remember { mutableStateOf(false) }
+
+    val auth = FirebaseAuth.getInstance()
 
     Column (
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(80.dp))
-            Icon(painter =  painterResource(id = R.drawable.home), contentDescription = null
+            Icon(painter =  painterResource(id = R.drawable.issuetalk), contentDescription = null
             ,modifier = Modifier
                     .width(160.dp)
-                    .height(160.dp))
+                    .height(160.dp),
+                tint = Color.Unspecified)
             Spacer(modifier = Modifier.height(30.dp))
             OutlinedTextField(
 
@@ -80,6 +86,9 @@ fun LoginScreen(
                 onValueChange = { newText -> emailText = newText },
                 textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp),
                 placeholder = { Text("이메일") },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Email
+                ),
                 modifier = Modifier
                     .wrapContentSize()
 
@@ -103,37 +112,26 @@ fun LoginScreen(
 
         )
         Spacer(modifier = Modifier.height(10.dp))
-        val context = LocalContext.current
+
         Button(
             onClick = {
-                auth.signInWithEmailAndPassword(emailText, pwText)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            navController.navigate("home")
-                            val user = Firebase.auth.currentUser
-                            user?.let {
-                                // Name, email address, and profile photo Url
-                                val name = it.displayName
-                                val email = it.email
-                                val photoUrl = it.photoUrl
+                if(emailText == "" || pwText == "") {
+                    showNotTextDialog = true
+                }
+                else {
+                    auth.signInWithEmailAndPassword(emailText, pwText)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                navController.navigate("home")
 
-                                // Check if user's email is verified
-                                val emailVerified = it.isEmailVerified
+                            } else {
+                                showLoginFailedDialog = true
 
-                                // The user's ID, unique to the Firebase project. Do NOT use this value to
-                                // authenticate with your backend server, if you have one. Use
-                                // FirebaseUser.getIdToken() instead.
-                                val uid = it.uid
-                                Log.d("user", "name : $name, email : $email, photoUrl : $photoUrl," +
-                                        "emailVerified : $emailVerified, uid : $uid"
-                                        )
                             }
-
-
-                        } else {
-                            Toast.makeText(context, task.exception?.message ,Toast.LENGTH_SHORT).show()
                         }
-                    }
+
+                }
+
             },
             colors = ButtonDefaults.buttonColors(selectedColor),
             modifier = Modifier
@@ -152,6 +150,14 @@ fun LoginScreen(
         }
         }
 
+
+    if(showLoginFailedDialog) {
+        checkDialog(onDismiss = { showLoginFailedDialog = false }, dialogText = "아이디 또는 비밀번호가 일치하지 않습니다.")
+    }
+
+    if(showNotTextDialog) {
+        checkDialog(onDismiss = { showNotTextDialog = false }, dialogText = "이메일과 비밀번호를 입력해주세요.")
+    }
 }
 
 
@@ -161,6 +167,6 @@ fun lPreview() {
     KindDiscussionTheme {
         val navController = rememberNavController()
         val auth = FirebaseAuth.getInstance()
-        LoginScreen(navController, auth)
+        LoginScreen(navController)
     }
 }

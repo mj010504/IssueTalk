@@ -2,6 +2,7 @@ package com.example.kinddiscussion.Home
 
 import android.graphics.Paint.Align
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,12 +15,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +45,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.kinddiscussion.R
 import com.example.kinddiscussion.blackLine
 import com.example.kinddiscussion.blackLine2
+import com.example.kinddiscussion.checkCancleDialog
 import com.example.kinddiscussion.grayLine
 
 
@@ -43,6 +54,8 @@ fun SubjectScreen(
     navController : NavController
 ) {
 
+    var isDropDownMenuExpanded by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
     BackHandler {
         navController.popBackStack()
     }
@@ -61,28 +74,58 @@ fun SubjectScreen(
                 )
             }
             Spacer(Modifier.weight(1f))
-            IconButton(onClick = { } ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
+
+            Box() {
+                IconButton(onClick = { isDropDownMenuExpanded = true} ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.vertical_menu), contentDescription = null,
+                        modifier = Modifier
+                            .width(20.dp)
+                            .height(20.dp)
+                    )
+                }
+
+
+                DropdownMenu(
                     modifier = Modifier
-                        .width(20.dp)
-                        .height(20.dp)
-                )
+                        .wrapContentSize(),
+                    expanded = isDropDownMenuExpanded,
+                    onDismissRequest = { isDropDownMenuExpanded = false }
+
+                ) {
+                    DropdownMenuItem(onClick = {
+                        isDropDownMenuExpanded = false
+                        showDeleteDialog = true
+                    }
+                    ) {
+                        Text("삭제하기")
+                    }
+                }
             }
 
+
         }
+
+
 
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
 
 
-            Icon(painter = painterResource(id = R.drawable.home) , contentDescription = null,
-                modifier = Modifier.width(100.dp).height(100.dp))
+            Icon(painter = painterResource(id = R.drawable.society) , contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(100.dp))
 
         }
-        Box(modifier = Modifier.fillMaxWidth().padding(top= 10.dp)) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp)) {
             Text("24.07.08", color = Color.Gray,
-                modifier = Modifier.padding(start = 8.dp).align(Alignment.BottomStart)
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .align(Alignment.BottomStart)
             )
                 Text("사회", style = TextStyle(fontSize = 18.sp), modifier = Modifier.align(Alignment.Center))
 
@@ -99,8 +142,10 @@ fun SubjectScreen(
             modifier = Modifier.padding(start = 8.dp, top = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(painter = painterResource(id = R.drawable.home) , contentDescription = null,
-                modifier = Modifier.width(20.dp).height(20.dp))
+            Icon(painter = painterResource(id = R.drawable.yes) , contentDescription = null,
+                modifier = Modifier
+                    .width(20.dp)
+                    .height(20.dp), tint = Color.Unspecified)
 
             Text("낙태는 꼭 필요한 제도이다.",
                 style = TextStyle(fontSize = 12.sp), modifier = Modifier.padding(start = 10.dp),
@@ -112,8 +157,10 @@ fun SubjectScreen(
             modifier = Modifier.padding(start = 8.dp, top = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(painter = painterResource(id = R.drawable.home) , contentDescription = null,
-                modifier = Modifier.width(20.dp).height(20.dp))
+            Icon(painter = painterResource(id = R.drawable.no) ,tint = Color.Unspecified, contentDescription = null,
+                modifier = Modifier
+                    .width(20.dp)
+                    .height(20.dp))
 
             Text("낙태는 꼭 필요한 제도이다.",
                 style = TextStyle(fontSize = 12.sp), modifier = Modifier.padding(start = 10.dp),
@@ -131,10 +178,11 @@ fun SubjectScreen(
             ) {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
-                        painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
+                        painter = painterResource(id = R.drawable.agree), contentDescription = null,
                         modifier = Modifier
                             .width(60.dp)
-                            .height(60.dp)
+                            .height(60.dp),
+                        tint = Color.Unspecified
                     )
                 }
 
@@ -148,7 +196,7 @@ fun SubjectScreen(
             ) {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
-                        painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
+                        painter = painterResource(id = R.drawable.scale), contentDescription = null,
                         modifier = Modifier
                             .width(60.dp)
                             .height(60.dp)
@@ -166,7 +214,7 @@ fun SubjectScreen(
             ) {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
-                        painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
+                        painter = painterResource(id = R.drawable.disagree), contentDescription = null,
                         modifier = Modifier
                             .width(60.dp)
                             .height(60.dp)
@@ -203,7 +251,18 @@ fun SubjectScreen(
             }
 
     }
+
+
+
+
+    if(showDeleteDialog) {
+        checkCancleDialog(onCheck = {  }, onDismiss = { showDeleteDialog = false }, dialogText = "정말로 이 주제를 삭제하시겠습니까?")
+    }
+
+
 }
+
+
 
 @Composable
 fun postPreviewLayout(
@@ -212,9 +271,11 @@ fun postPreviewLayout(
     blackLine2()
     Spacer(Modifier.height(15.dp))
     Box(
-        modifier = Modifier.clickable {
-            navController.navigate("subjectPost")
-        }.fillMaxWidth()
+        modifier = Modifier
+            .clickable {
+                navController.navigate("subjectPost")
+            }
+            .fillMaxWidth()
     ) {
         Text("50%만 허용해야한다. 왜냐하면 ~ 하기 때문이다.",  style = TextStyle(fontSize = 16.sp),
             modifier = Modifier.padding(start = 8.dp))
@@ -222,6 +283,9 @@ fun postPreviewLayout(
 
 
 }
+
+
+
 
 @Preview(showBackground = true)
 @Composable

@@ -44,6 +44,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 
 import com.example.kinddiscussion.R
+import com.example.kinddiscussion.checkDialog
 
 import com.example.kinddiscussion.ui.theme.KindDiscussionTheme
 import com.example.kinddiscussion.ui.theme.selectedColor
@@ -57,14 +58,17 @@ import com.google.firebase.auth.userProfileChangeRequest
 @Composable
 fun SignUpScreen(
     navController: NavController,
-    auth: FirebaseAuth
+
 ) {
 
+    val auth = FirebaseAuth.getInstance()
 
     var emailText by remember { mutableStateOf("") }
     var nameText by remember { mutableStateOf("") }
     var pwText by remember { mutableStateOf("") }
     var pwCheckTest by remember { mutableStateOf("") }
+    var showPwDialog by remember { mutableStateOf(false) }
+    var showSignUpErrorDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -82,7 +86,8 @@ fun SignUpScreen(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(painter =  painterResource(id = R.drawable.home), contentDescription = null
+            Icon(painter =  painterResource(id = R.drawable.issuetalk), contentDescription = null,
+                tint = Color.Unspecified
                 ,modifier = Modifier
                     .width(55.dp)
                     .height(55.dp)
@@ -134,6 +139,9 @@ fun SignUpScreen(
                 .padding(start = 20.dp, end = 20.dp, top = 10.dp),
             maxLines = 1,
             textStyle = TextStyle(fontSize = 20.sp),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Email
+            )
 
 
         )
@@ -218,11 +226,11 @@ fun SignUpScreen(
 
                             } else {
                                 // 회원가입 실패
-                              Toast.makeText(context, task.exception?.message ,Toast.LENGTH_SHORT).show()
+                              showSignUpErrorDialog = true
                             }
                         }
                 } else {
-                    Toast.makeText(context, "비밀번호가 일치하지 않습니다." ,Toast.LENGTH_SHORT).show()
+                    showPwDialog = true
                 }
             },
             colors = ButtonDefaults.buttonColors(selectedColor),
@@ -233,9 +241,18 @@ fun SignUpScreen(
             Text(stringResource(id = R.string.signUp), color = Color.White,style = TextStyle(fontSize = 20.sp))
         }
 
+        if(showPwDialog) {
+            checkDialog(onDismiss = { showPwDialog = false}, dialogText = "비밀번호가 일치하지 않습니다.")
+        }
 
+        if(showSignUpErrorDialog) {
+            checkDialog(onDismiss = { showSignUpErrorDialog = false}, dialogText = "올바르지 않은 이메일 형식입니다.")
+        }
     }
 }
+
+
+
 
 @Preview(showBackground = true)
 @Composable
@@ -243,7 +260,7 @@ fun Psreview() {
 
         val navController = rememberNavController()
         val auth = Firebase.auth
-        SignUpScreen(navController, auth)
+        SignUpScreen(navController)
 
 
 }
