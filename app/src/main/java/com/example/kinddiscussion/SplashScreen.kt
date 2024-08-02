@@ -31,15 +31,20 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.kinddiscussion.Home.HomeScreen
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 
 @Composable
 fun SplashScreen(navController: NavController) {
+    val auth = FirebaseAuth.getInstance()
+    val user = auth.currentUser
 
     LaunchedEffect(Unit) {
         delay(500)
-        navController.navigate("login") {
+        val nextRoute = if(user != null) "home" else "login"
+        navController.navigate(nextRoute) {
             popUpTo("splash") { inclusive = true }
         }
     }
@@ -62,5 +67,6 @@ fun SplashScreen(navController: NavController) {
 @Composable
 fun PreviewTextFielsddExample() {
     val navController = rememberNavController()
+    val isUser = true
     SplashScreen(navController)
 }
