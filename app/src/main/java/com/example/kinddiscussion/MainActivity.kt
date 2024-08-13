@@ -3,6 +3,7 @@ package com.example.kinddiscussion
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -43,6 +44,8 @@ import com.example.kinddiscussion.Home.SubjectPostScreen
 import com.example.kinddiscussion.Home.SubjectScreen
 import com.example.kinddiscussion.Home.WritePostScreen
 import com.example.kinddiscussion.Home.WriteSubjectScreen
+import com.example.kinddiscussion.Home.viewModel.PostViewModel
+import com.example.kinddiscussion.Home.viewModel.SubjectViewModel
 import com.example.kinddiscussion.Menu.MenuScreen
 import com.example.kinddiscussion.Search.SearchScreen
 import com.example.kinddiscussion.ui.theme.KindDiscussionTheme
@@ -51,18 +54,20 @@ import com.google.android.play.integrity.internal.i
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
-private lateinit var auth: FirebaseAuth
 
 class MainActivity : ComponentActivity() {
 
+    private val subjectViewModel by viewModels<SubjectViewModel>()
+    private val postViewModel by viewModels<PostViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        auth = Firebase.auth
-
 
 
         setContent {
@@ -74,21 +79,13 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background,
                     ) {
-                        navigation()
+                        navigation(subjectViewModel, postViewModel)
                     }
 
             }
         }
     }
 
-    public override fun onStart() {
-        super.onStart()
-        // Check if user is signed in (non-null) and update UI accordingly.
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-
-        }
-    }
 
 }
 
@@ -97,7 +94,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun navigation(
-
+    subjectViewModel: SubjectViewModel, postViewModel: PostViewModel
 ) {
 
     val navController = rememberNavController()
@@ -117,25 +114,25 @@ fun navigation(
             startDestination = "splash",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("home") { HomeScreen(navController) }
+            composable("home") { HomeScreen(navController, subjectViewModel) }
             composable("search") { SearchScreen(navController) }
             composable("menu") { MenuScreen(navController) }
             composable("writeSubject") {
-                WriteSubjectScreen(navController)
+                WriteSubjectScreen(navController, subjectViewModel)
             }
             composable("subject") {
-                SubjectScreen(navController)
+                SubjectScreen(navController, subjectViewModel, postViewModel)
             }
             composable("subjectPost") {
-                SubjectPostScreen(navController)
+                SubjectPostScreen(navController, subjectViewModel, postViewModel)
             }
             composable("post") {
-                PostScreen(navController)
+                PostScreen(navController, postViewModel)
             }
             composable("splash") { SplashScreen(navController) }
             composable("login") { LoginScreen(navController) }
             composable("signUp") { SignUpScreen(navController) }
-            composable("writePost") { WritePostScreen(navController) }
+            composable("writePost") { WritePostScreen(navController, subjectViewModel, postViewModel) }
         }
     }
 }
@@ -206,6 +203,30 @@ fun checkCancleDialog (
     )
 }
 
+fun getCurrentDateFormatted(): String {
+    // 현재 날짜를 가져옴
+    val currentDate = LocalDateTime.now()
+
+    // 원하는 형식의 DateTimeFormatter 생성
+    val formatter = DateTimeFormatter.ofPattern("yy.MM.dd HH:mm")
+
+    // 날짜를 포맷하여 문자열로 반환
+    return currentDate.format(formatter)
+}
+
+fun fieldToImage(field : String) : Int{
+
+        when(field) {
+            "사회" -> return R.drawable.society
+            "정치" -> return R.drawable.politics
+            "연예" -> return R.drawable.entertainments
+            "경제" -> return R.drawable.economy
+            "기타" -> return R.drawable.etc
+        }
+
+    return R.drawable.society
+
+}
 
 
 

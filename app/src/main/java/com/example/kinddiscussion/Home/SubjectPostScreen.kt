@@ -1,5 +1,6 @@
 package com.example.kinddiscussion.Home
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -22,6 +23,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,19 +31,38 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.kinddiscussion.Firebase.Post
+import com.example.kinddiscussion.Firebase.Subject
+import com.example.kinddiscussion.Home.viewModel.PostViewModel
+import com.example.kinddiscussion.Home.viewModel.SubjectViewModel
+
 import com.example.kinddiscussion.R
 import com.example.kinddiscussion.Search.recentSearch
+import com.example.kinddiscussion.fieldToImage
 import com.example.kinddiscussion.grayLine
 import com.example.kinddiscussion.ui.theme.selectedColor
 import java.time.format.TextStyle
 
+lateinit var postList : List<Post>
+lateinit var postIdList : List<String>
+
 
 @Composable
 fun SubjectPostScreen(
-    navController : NavController
+    navController : NavController,
+    subjectViewModel: SubjectViewModel = viewModel(),
+    postViewModel: PostViewModel = viewModel()
 ) {
+
+    val fieldImage = fieldToImage(subjectViewModel.subject.value.subjectField)
+    val subjectTitle = subjectViewModel.subject.value.title
+
+    postList = postViewModel.postList
+    postIdList = postViewModel.postIdList
+
     BackHandler {
         navController.popBackStack()
     }
@@ -64,7 +85,8 @@ fun SubjectPostScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.politics), contentDescription = null,
+
+                painter = painterResource(id = fieldImage), contentDescription = null,
                 tint = Color.Unspecified,
                 modifier = Modifier
                     .padding(start = 10.dp)
@@ -73,7 +95,7 @@ fun SubjectPostScreen(
             )
 
             Text(
-                text = "제목 제목 제목 일까?",
+                text = subjectTitle,
                 style = androidx.compose.ui.text.TextStyle(fontSize = 24.sp),
                 modifier = Modifier.padding(start = 20.dp),
 
@@ -93,8 +115,8 @@ fun SubjectPostScreen(
             modifier = Modifier
 
         ) {
-            items(10) { index ->
-                postLayout(navController)
+            items(postList.size) { index ->
+                postLayout(navController, index, postViewModel)
 
             }
         }
@@ -122,25 +144,33 @@ fun writePostButton (
 
 @Composable
 fun postLayout (
-    navController: NavController
+    navController: NavController, index : Int, postViewModel: PostViewModel
 ) {
+
+    val post = postList[index]
     Box(
-        modifier = Modifier.wrapContentSize()
+        modifier = Modifier
+            .wrapContentSize()
             .clickable {
+                postViewModel.setPost(post, postIdList[index])
                 navController.navigate("post")
             }
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(start = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp),
         ) {
-            Text("이것은 제목입니다. 이것은 제목입니다다",
+            Text(post.title,
                 modifier = Modifier.weight(1f),
                 style = androidx.compose.ui.text.TextStyle(fontSize = 16.sp),
                 maxLines = 1
             )
 
             Column(
-                modifier = Modifier.wrapContentSize().padding(top = 10.dp),
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(top = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
@@ -158,13 +188,15 @@ fun postLayout (
                 Spacer(modifier = Modifier.height(4.dp))
 
 
-                Text("25", color = Color.Gray)
+                Text(post.likeCount.toString(), color = Color.Gray)
             }
 
 
             Spacer(modifier = Modifier.width(5.dp))
             Column(
-                modifier = Modifier.wrapContentSize().padding(top = 10.dp),
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(top = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
@@ -187,7 +219,7 @@ fun postLayout (
                     , contentAlignment = Alignment.Center
 
                 ) {
-                    Text("25", color = Color.Gray)
+                    Text(post.commentCount.toString(), color = Color.Gray)
                 }
             }
             Spacer(modifier = Modifier.width(10.dp))
@@ -195,12 +227,14 @@ fun postLayout (
 
 
         Row(
-            modifier = Modifier.padding(start = 12.dp).align(Alignment.BottomStart)
+            modifier = Modifier
+                .padding(start = 12.dp)
+                .align(Alignment.BottomStart)
             , verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("닉네임", color = Color.Gray)
+            Text(post.userName, color = Color.Gray)
             Spacer(modifier = Modifier.width(5.dp))
-            Text("00.00.00", color = Color.Gray)
+            Text(post.date, color = Color.Gray)
         }
 
     }

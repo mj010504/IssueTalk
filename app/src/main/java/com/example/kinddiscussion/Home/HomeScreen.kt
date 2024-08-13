@@ -1,6 +1,7 @@
 
 package com.example.kinddiscussion.Home
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,9 +22,11 @@ import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,25 +37,41 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.kinddiscussion.Firebase.Subject
+import com.example.kinddiscussion.Home.viewModel.SubjectViewModel
+
 import com.example.kinddiscussion.R
 import com.example.kinddiscussion.SplashScreen
 
 import com.example.kinddiscussion.blackLine
+import com.example.kinddiscussion.fieldToImage
 import com.example.kinddiscussion.ui.theme.selectedColor
 import com.example.kinddiscussion.ui.theme.tabGreenColor
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import kotlinx.coroutines.tasks.await
 
+
+    lateinit var subjectList : List<Subject>
+    lateinit var subjectIdList : List<String>
 
 @Composable
 fun HomeScreen(
-    navCotnroller : NavController
+    navCotnroller : NavController,
+    subjectViewModel: SubjectViewModel = viewModel()
+
 ) {
+
+    subjectList = subjectViewModel.subjectList
+    subjectIdList = subjectViewModel.subjectIdList
+
     val tabs = listOf("전체", "사회", "정치", "경제", "연예", "기타")
     var selectedTabIndex by remember {mutableStateOf(0)}
-
 
 
     Column (
@@ -78,14 +97,15 @@ fun HomeScreen(
         writeSubjectButton(navCotnroller)
         blackLine()
 
+
+
         LazyColumn(
 
             modifier = Modifier
 
         ) {
-            items(3) { index ->
-
-                subjectLayout(navCotnroller)
+            items(subjectList.size) { index ->
+                    subjectLayout(navCotnroller,index, subjectViewModel)
             }
         }
     }
@@ -119,17 +139,26 @@ fun writeSubjectButton (
 
 @Composable
 fun subjectLayout(
-    navCotnroller: NavController
+    navCotnroller: NavController,
+    index : Int,
+    subjectViewModel: SubjectViewModel
 ) {
-        Box(
-            modifier = Modifier.clickable {
-                navCotnroller.navigate("subject")
-            }
+
+    val subject = subjectList[index]
+    val subjectId = subjectIdList[index]
+
+    Box(
+            modifier = Modifier
+                .clickable {
+                    subjectViewModel.setSubject(subject, subjectId)
+                    navCotnroller.navigate("subject")
+                }
                 .wrapContentSize()
         ) {
             Row() {
+                val fieldImage = fieldToImage(subject.subjectField)
                 Icon(
-                    painter = painterResource(id = R.drawable.society), contentDescription = null,
+                    painter = painterResource(id = fieldImage), contentDescription = null,
                     tint = Color.Unspecified,
                     modifier = Modifier
                         .padding(start = 6.dp)
@@ -138,8 +167,10 @@ fun subjectLayout(
                 )
 
                 Text(
-                    "낙태를 허용해도 될까?",
-                    modifier = Modifier.weight(1f).padding(start = 18.dp, end = 15.dp),
+                    subject.title,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 18.dp, end = 15.dp),
                     maxLines = 1
                 )
 
@@ -148,16 +179,18 @@ fun subjectLayout(
 
 
     Box(
-        modifier = Modifier.clickable {
-            navCotnroller.navigate("subject")
-        }
+        modifier = Modifier
+            .clickable {
+                subjectViewModel.setSubject(subject, subjectId)
+                navCotnroller.navigate("subject")
+            }
             .wrapContentSize()
     ) {
         Row(
             modifier = Modifier.fillMaxWidth()
         )
         {
-            Text("사회", modifier = Modifier.padding(start = 6.dp, top = 3.dp)
+            Text(subject.subjectField, modifier = Modifier.padding(start = 6.dp, top = 3.dp)
             ,style  =TextStyle(fontWeight = FontWeight.Bold)
             )
             Icon(
@@ -169,7 +202,7 @@ fun subjectLayout(
 
             )
 
-            Text("10", modifier = Modifier.padding(top = 5.dp, start = 4.dp))
+            Text(subject.agreeCount.toString(), modifier = Modifier.padding(top = 5.dp, start = 4.dp))
             Icon(
                 painter = painterResource(id = R.drawable.disagree), contentDescription = null,
                 modifier = Modifier
@@ -179,7 +212,7 @@ fun subjectLayout(
 
             )
 
-            Text("10", modifier = Modifier.padding(top = 5.dp, start = 4.dp))
+            Text(subject.disagreeCount.toString(), modifier = Modifier.padding(top = 5.dp, start = 4.dp))
 
             Icon(
                 painter = painterResource(id = R.drawable.scale), contentDescription = null,
@@ -190,10 +223,10 @@ fun subjectLayout(
 
             )
 
-            Text("10", modifier = Modifier.padding(top = 5.dp, start = 4.dp))
+            Text(subject.neutralCount.toString(), modifier = Modifier.padding(top = 5.dp, start = 4.dp))
 
             Text(
-                "24.07.07",
+                subject.date,
                 modifier = Modifier.padding(top = 5.dp, start = 11.dp),
                 color = Color.Gray,
                 style = TextStyle(fontSize = 12.sp)

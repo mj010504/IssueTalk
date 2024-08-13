@@ -1,6 +1,7 @@
 package com.example.kinddiscussion.Home
 
 import android.graphics.Paint.Align
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -40,20 +41,30 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.kinddiscussion.Firebase.Subject
+import com.example.kinddiscussion.Home.viewModel.PostViewModel
+import com.example.kinddiscussion.Home.viewModel.SubjectViewModel
+
 import com.example.kinddiscussion.R
 import com.example.kinddiscussion.blackLine
 import com.example.kinddiscussion.blackLine2
 import com.example.kinddiscussion.checkCancleDialog
+import com.example.kinddiscussion.fieldToImage
 import com.example.kinddiscussion.grayLine
 
 
 @Composable
 fun SubjectScreen(
-    navController : NavController
+    navController : NavController,
+  subjectViewModel: SubjectViewModel = viewModel(),
+    postViewModel: PostViewModel = viewModel()
+
 ) {
 
+    val subject by subjectViewModel.subject
     var isDropDownMenuExpanded by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     BackHandler {
@@ -111,8 +122,8 @@ fun SubjectScreen(
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
 
-
-            Icon(painter = painterResource(id = R.drawable.society) , contentDescription = null,
+            val fieldImage = fieldToImage(subject.subjectField)
+            Icon(painter = painterResource(id = fieldImage) , contentDescription = null,
                 tint = Color.Unspecified,
                 modifier = Modifier
                     .width(100.dp)
@@ -122,19 +133,19 @@ fun SubjectScreen(
         Box(modifier = Modifier
             .fillMaxWidth()
             .padding(top = 10.dp)) {
-            Text("24.07.08", color = Color.Gray,
+            Text(subject.date, color = Color.Gray,
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .align(Alignment.BottomStart)
             )
-                Text("사회", style = TextStyle(fontSize = 18.sp), modifier = Modifier.align(Alignment.Center))
+                Text(subject.subjectField, style = TextStyle(fontSize = 18.sp), modifier = Modifier.align(Alignment.Center))
 
 
         }
 
         blackLine()
 
-        Text("낙태를 허용해도 될까?",
+        Text(subject.title,
             style = TextStyle(fontSize = 16.sp), modifier = Modifier.padding(start = 16.dp)
         )
 
@@ -147,7 +158,7 @@ fun SubjectScreen(
                     .width(20.dp)
                     .height(20.dp), tint = Color.Unspecified)
 
-            Text("낙태는 꼭 필요한 제도이다.",
+            Text(subject.agreeText,
                 style = TextStyle(fontSize = 12.sp), modifier = Modifier.padding(start = 10.dp),
                 color = Color.Gray
             )
@@ -162,7 +173,7 @@ fun SubjectScreen(
                     .width(20.dp)
                     .height(20.dp))
 
-            Text("낙태는 꼭 필요한 제도이다.",
+            Text(subject.disagreeText,
                 style = TextStyle(fontSize = 12.sp), modifier = Modifier.padding(start = 10.dp),
                 color = Color.Gray
             )
@@ -176,7 +187,7 @@ fun SubjectScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                IconButton(onClick = { navController.popBackStack() }) {
+                IconButton(onClick = {  }) {
                     Icon(
                         painter = painterResource(id = R.drawable.agree), contentDescription = null,
                         modifier = Modifier
@@ -186,7 +197,7 @@ fun SubjectScreen(
                     )
                 }
 
-                Text("80", style = TextStyle(fontSize = 25.sp, fontWeight = Bold))
+                Text(subject.agreeCount.toString(), style = TextStyle(fontSize = 25.sp, fontWeight = Bold))
 
 
             }
@@ -194,7 +205,7 @@ fun SubjectScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                IconButton(onClick = { navController.popBackStack() }) {
+                IconButton(onClick = { }) {
                     Icon(
                         painter = painterResource(id = R.drawable.scale), contentDescription = null,
                         modifier = Modifier
@@ -203,7 +214,7 @@ fun SubjectScreen(
                     )
                 }
 
-                Text("80", style = TextStyle(fontSize = 25.sp, fontWeight = Bold))
+                Text(subject.neutralCount.toString(), style = TextStyle(fontSize = 25.sp, fontWeight = Bold))
 
 
             }
@@ -212,7 +223,7 @@ fun SubjectScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                IconButton(onClick = { navController.popBackStack() }) {
+                IconButton(onClick = {  }) {
                     Icon(
                         painter = painterResource(id = R.drawable.disagree), contentDescription = null,
                         modifier = Modifier
@@ -221,7 +232,7 @@ fun SubjectScreen(
                     )
                 }
 
-                Text("80", style = TextStyle(fontSize = 25.sp, fontWeight = Bold))
+                Text(subject.disagreeCount.toString(), style = TextStyle(fontSize = 25.sp, fontWeight = Bold))
 
 
             }
@@ -229,22 +240,29 @@ fun SubjectScreen(
 
         blackLine()
 
+        Spacer(Modifier.height(80.dp))
 
-        Spacer(Modifier.height(120.dp))
-        TextButton(onClick = {navController.navigate("subjectPost")}) {
-            Text("게시글 보러가기 (20)", modifier = Modifier.padding(start = 8.dp),
+        val postCount  = subject.postCount
+        TextButton(onClick = {
+            postViewModel.fetchPosts(subjectViewModel.subjectId.value)
+            navController.navigate("subjectPost")
+        }
+        ) {
+            Text("게시글 보러가기 (${postCount})", modifier = Modifier.padding(start = 8.dp),
                 style = TextStyle(fontSize = 16.sp), color = Color.Black
             )
         }
 
-
+        if(postCount == 0) {
+            blackLine2()
+        }
 
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(15.dp),
                 modifier = Modifier
 
             ) {
-                items(3) { index ->
+                items(postCount) { index ->
                     postPreviewLayout(navController)
 
                 }
@@ -273,6 +291,7 @@ fun postPreviewLayout(
     Box(
         modifier = Modifier
             .clickable {
+
                 navController.navigate("subjectPost")
             }
             .fillMaxWidth()
@@ -284,12 +303,13 @@ fun postPreviewLayout(
 
 }
 
-
-
-
 @Preview(showBackground = true)
 @Composable
-fun PreviewTsdssextssFieldExample() {
+fun PreviewTextFieldssddExample() {
     val navController = rememberNavController()
     SubjectScreen(navController)
 }
+
+
+
+

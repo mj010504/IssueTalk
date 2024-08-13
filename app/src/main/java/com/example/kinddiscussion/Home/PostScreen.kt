@@ -1,6 +1,7 @@
 package com.example.kinddiscussion.Home
 
 import android.graphics.Paint.Align
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -44,30 +45,41 @@ import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.kinddiscussion.Firebase.Comment
+import com.example.kinddiscussion.Firebase.Post
+import com.example.kinddiscussion.Home.viewModel.PostViewModel
+
 import com.example.kinddiscussion.R
 import com.example.kinddiscussion.checkCancleDialog
 import com.example.kinddiscussion.grayLine
 import com.example.kinddiscussion.ui.theme.selectedColor
 
+//lateinit var commentList : List<Comment>
 @Composable
 fun PostScreen(
-    navController : NavController
+    navController : NavController,
+    postViewModel: PostViewModel = viewModel()
 ) {
 
     BackHandler {
         navController.popBackStack()
     }
 
+    val post by postViewModel.post
+
     var isPostDropDownMenuExpanded by remember { mutableStateOf(false) }
     var isCommentDropDownMenuExpanded = remember { mutableStateOf(false) }
     var showPostDeleteDialog by remember { mutableStateOf(false) }
     var showCommentDeleteDialog = remember { mutableStateOf(false) }
     var selectedIndex = remember { mutableStateOf(-1) }
+    val commentCount = post.commentCount.toString()
 
     Column(
 
@@ -139,7 +151,7 @@ fun PostScreen(
 
 
         Text(
-            text = "제목 제목 제목",
+            text = post.title,
             style = TextStyle(fontSize = 20.sp),
             modifier = Modifier
                 .padding(start = 20.dp, end = 35.dp)
@@ -150,20 +162,23 @@ fun PostScreen(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(start = 20.dp)
         ) {
-            Text("닉네임", color = Color.Black)
+            Text(post.userName, color = Color.Black)
             Spacer(Modifier.width(5.dp))
-            Text("00.00.00", color = Color.Gray)
+            Text(post.date, color = Color.Gray)
         }
         Spacer(Modifier.height(8.dp))
         grayLine()
         Spacer(Modifier.height(15.dp))
         Text(
-            text = stringResource(R.string.ipsum),
+            text = post.content,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 15.dp, end = 15.dp)
+                .padding(start = 15.dp, end = 15.dp),
+            style = TextStyle(fontSize = 17.sp)
         )
 
+
+        Spacer(Modifier.height(15.dp))
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
@@ -181,18 +196,23 @@ fun PostScreen(
                 )
             }
             Spacer(Modifier.width(5.dp))
-            Text("0", style = TextStyle(fontSize = 26.sp))
+            Text(post.likeCount.toString(), style = TextStyle(fontSize = 26.sp))
         }
 
         Spacer(Modifier.height(10.dp))
         grayLine()
+
+        Text("전체 댓글($commentCount)",
+            style = TextStyle(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(start = 15.dp, top = 15.dp)
+        )
 
         LazyColumn(
 
             modifier = Modifier
 
         ) {
-            items(3) { index ->
+            items(0) { index ->
                 commentLayout(isCommentDropDownMenuExpanded, showCommentDeleteDialog, index, selectedIndex)
 
             }
@@ -257,7 +277,7 @@ fun commentLayout(
     menuExpanded : MutableState<Boolean>, dialogShowed : MutableState<Boolean>,
     index : Int, selectedIndex : MutableState<Int>
 ) {
-
+    val comment = Comment()
     Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -266,9 +286,9 @@ fun commentLayout(
 
             ) {
 
-                Text("닉네임", color = Color.Gray)
+                Text(comment.userName, color = Color.Gray)
                 Spacer(modifier = Modifier.width(3.dp))
-                Text("00.00.00", color = Color.Gray, modifier = Modifier.padding(3.dp))
+                Text(comment.date, color = Color.Gray, modifier = Modifier.padding(3.dp))
                  Spacer(modifier = Modifier.weight(1f))
 
             Box() {
@@ -314,7 +334,7 @@ fun commentLayout(
 
         }
 
-    Text("댓글 내용 댓글 내용",  modifier = Modifier.padding(start = 12.dp) )
+    Text(comment.commentContent,  modifier = Modifier.padding(start = 12.dp) )
     Spacer(Modifier.height(8.dp))
     grayLine()
 

@@ -33,17 +33,30 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.kinddiscussion.Firebase.Post
+import com.example.kinddiscussion.Home.viewModel.PostViewModel
+import com.example.kinddiscussion.Home.viewModel.SubjectViewModel
 import com.example.kinddiscussion.R
+import com.example.kinddiscussion.checkDialog
+import com.example.kinddiscussion.getCurrentDateFormatted
 import com.example.kinddiscussion.ui.theme.selectedColor
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun WritePostScreen(
-    navController: NavController
+    navController: NavController,
+    subjectViewModel: SubjectViewModel = viewModel(),
+    postViewModel : PostViewModel = viewModel()
 ) {
     var titleText by remember { mutableStateOf("") }
     var contentText by remember { mutableStateOf("") }
+
+    var dialogText by  remember {mutableStateOf("")}
+    var showDialog by remember { mutableStateOf(false) }
+
     BackHandler {
         navController.popBackStack()
     }
@@ -64,12 +77,43 @@ fun WritePostScreen(
                     .width(35.dp)
                     .height(35.dp))
             }
-            registerPostButton()
+            OutlinedButton(
+                onClick = {
+                    val auth = FirebaseAuth.getInstance()
+                    val userId = auth.currentUser!!.uid
+                    val currentDate = getCurrentDateFormatted()
+                    val writePost = Post(
+                        title = titleText,
+                        content = contentText,userId = userId, subjectId = subjectViewModel.subjectId.value,
+                        field = subjectViewModel.subject.value.subjectField, likeCount = 0,
+                        commentCount = 0, userName = auth.currentUser!!.displayName.toString(),
+                        date = currentDate
+                    )
+
+                    val isSuccess = postViewModel.writePost(writePost)
+                    if(isSuccess) {
+                        navController.popBackStack()
+                    }
+                    else {
+                        showDialog =  true
+                        dialogText = "게시글 등록에 실패했습니다."
+                    }
+
+                },
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = selectedColor
+                ),
+                border = BorderStroke(1.dp, selectedColor),
+                modifier = Modifier.padding(end = 15.dp)
+
+            ) {
+                Text(text = "등록")
+            }
         }
         Spacer(modifier = Modifier.height(10.dp))
         // 제목
         TextField(
-            modifier = Modifier.padding(start = 15.dp, end = 15.dp),
+            modifier = Modifier.padding(start = 15.dp, end = 15.dp).fillMaxWidth(),
             value = titleText,
             onValueChange = { newText -> titleText = newText },
             placeholder = {
@@ -79,7 +123,9 @@ fun WritePostScreen(
                     style = TextStyle(fontSize = 25.sp)
                 )
             }, colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = Color.White
+                backgroundColor = Color.White,
+                focusedIndicatorColor = selectedColor,
+                cursorColor = selectedColor
             ),
             textStyle = TextStyle(fontSize = 25.sp)
         )
@@ -90,6 +136,7 @@ fun WritePostScreen(
             onValueChange = { newText ->
                 contentText = newText
             },
+
             textStyle = TextStyle(color = Color.Black, fontSize = 18.sp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -99,33 +146,19 @@ fun WritePostScreen(
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent
+                focusedIndicatorColor = selectedColor,
+                cursorColor = selectedColor
             )
 
         )
 
 
     }
+
+    if(showDialog) {
+        checkDialog(onDismiss = { showDialog = false}, dialogText = dialogText )
+    }
 }
-
-@Composable
-fun registerPostButton (
-
-    ){
-        OutlinedButton(
-            onClick = {  },
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = selectedColor
-            ),
-            border = BorderStroke(1.dp, selectedColor),
-            modifier = Modifier.padding(end = 15.dp)
-
-        ) {
-            Text(text = "등록")
-        }
-
-}
-
 
 
 @Preview(showBackground = true)
