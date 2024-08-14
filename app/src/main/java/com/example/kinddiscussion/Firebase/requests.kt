@@ -12,7 +12,7 @@ data class Subject(
     var disagreeCount : Int = 0,
     var neutralCount : Int = 0,
     val userId : String = "",
-    val postCount : Int = 0,
+    var postCount : Int = 0,
     val subjectField : String = "",
     val date : String = " ",
     val timestamp : Timestamp = Timestamp.now()
@@ -25,8 +25,8 @@ data class Post(
     val userId : String = "",
     val title : String = "",
     val field : String = "",
-    val likeCount : Int = 0,
-    val commentCount: Int = 0,
+    var likeCount : Int = 0,
+    var commentCount: Int = 0,
     val userName: String = "",
     val date : String = "",
     val content : String = "",
@@ -39,6 +39,7 @@ data class Comment(
     val postId : String = "",
     val userName : String = "",
     val date : String = "",
-    val commentContent : String = ""
+    val commentContent : String = "",
+    val timestamp: Timestamp = Timestamp.now()
 )
 

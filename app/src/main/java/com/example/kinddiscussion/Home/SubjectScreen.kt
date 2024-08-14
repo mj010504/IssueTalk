@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.kinddiscussion.Firebase.Post
 import com.example.kinddiscussion.Firebase.Subject
 import com.example.kinddiscussion.Home.viewModel.PostViewModel
 import com.example.kinddiscussion.Home.viewModel.SubjectViewModel
@@ -55,6 +56,7 @@ import com.example.kinddiscussion.checkCancleDialog
 import com.example.kinddiscussion.fieldToImage
 import com.example.kinddiscussion.grayLine
 
+lateinit var threePosts : List<Post>
 
 @Composable
 fun SubjectScreen(
@@ -65,6 +67,8 @@ fun SubjectScreen(
 ) {
 
     val subject by subjectViewModel.subject
+    threePosts = subjectViewModel.threePosts
+
     var isDropDownMenuExpanded by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     BackHandler {
@@ -256,17 +260,20 @@ fun SubjectScreen(
         if(postCount == 0) {
             blackLine2()
         }
+        else {
 
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(15.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
-
             ) {
-                items(postCount) { index ->
-                    postPreviewLayout(navController)
+                items(threePosts.size) { index ->
+                    postPreviewLayout(navController, index, subjectViewModel, postViewModel)
 
                 }
             }
+
+        }
+
 
     }
 
@@ -284,20 +291,90 @@ fun SubjectScreen(
 
 @Composable
 fun postPreviewLayout(
-    navController: NavController
+    navController: NavController,
+    index : Int,
+    subjectViewModel: SubjectViewModel,postViewModel: PostViewModel
 ) {
+    val post = threePosts[index]
+
     blackLine2()
-    Spacer(Modifier.height(15.dp))
+    Spacer(Modifier.height(3.dp))
     Box(
         modifier = Modifier
             .clickable {
-
+                postViewModel.fetchPosts(subjectViewModel.subjectId.value)
                 navController.navigate("subjectPost")
             }
-            .fillMaxWidth()
+            .wrapContentSize()
     ) {
-        Text("50%만 허용해야한다. 왜냐하면 ~ 하기 때문이다.",  style = TextStyle(fontSize = 16.sp),
-            modifier = Modifier.padding(start = 8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .padding(start = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(post.title,  style = TextStyle(fontSize = 16.sp),
+                modifier = Modifier.weight(1f),
+                maxLines = 1)
+
+            Column(
+                modifier = Modifier
+                    .wrapContentSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(20.dp)
+                        .height(20.dp)
+                        .padding(top = 5.dp)
+
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.like_ic), contentDescription = null,
+                        tint = Color.Unspecified
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+
+                Text(post.likeCount.toString(), color = Color.Gray)
+            }
+
+
+            Spacer(modifier = Modifier.width(5.dp))
+            Column(
+                modifier = Modifier
+                    .wrapContentSize()
+                   ,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(20.dp)
+                        .height(20.dp)
+                        .padding(top = 5.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.comment), contentDescription = null,
+                        tint = Color.Unspecified
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Box(
+                    modifier = Modifier
+                        .width(20.dp)
+                        .height(20.dp)
+                    , contentAlignment = Alignment.Center
+
+                ) {
+                    Text(post.commentCount.toString(), color = Color.Gray)
+                }
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+        }
+
     }
 
 

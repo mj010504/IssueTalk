@@ -36,6 +36,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.kinddiscussion.Firebase.Post
 import com.example.kinddiscussion.Firebase.Subject
+import com.example.kinddiscussion.Home.viewModel.CommentViewModel
 import com.example.kinddiscussion.Home.viewModel.PostViewModel
 import com.example.kinddiscussion.Home.viewModel.SubjectViewModel
 
@@ -54,7 +55,8 @@ lateinit var postIdList : List<String>
 fun SubjectPostScreen(
     navController : NavController,
     subjectViewModel: SubjectViewModel = viewModel(),
-    postViewModel: PostViewModel = viewModel()
+    postViewModel: PostViewModel = viewModel(),
+    commentViewModel: CommentViewModel = viewModel()
 ) {
 
     val fieldImage = fieldToImage(subjectViewModel.subject.value.subjectField)
@@ -116,7 +118,7 @@ fun SubjectPostScreen(
 
         ) {
             items(postList.size) { index ->
-                postLayout(navController, index, postViewModel)
+                postLayout(navController, index, postViewModel, commentViewModel)
 
             }
         }
@@ -144,7 +146,7 @@ fun writePostButton (
 
 @Composable
 fun postLayout (
-    navController: NavController, index : Int, postViewModel: PostViewModel
+    navController: NavController, index : Int, postViewModel: PostViewModel, commentViewModel: CommentViewModel
 ) {
 
     val post = postList[index]
@@ -153,6 +155,9 @@ fun postLayout (
             .wrapContentSize()
             .clickable {
                 postViewModel.setPost(post, postIdList[index])
+
+                val subjecetId = post.subjectId
+                commentViewModel.fetchComments(subjecetId, postIdList[index])
                 navController.navigate("post")
             }
     ) {

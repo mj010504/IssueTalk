@@ -2,28 +2,28 @@ package com.example.kinddiscussion.Home
 
 import android.graphics.Paint.Align
 import android.util.Log
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-
-import androidx.compose.foundation.layout.IntrinsicSize
-
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
@@ -42,6 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -49,24 +51,43 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.kinddiscussion.Firebase.Comment
 import com.example.kinddiscussion.Firebase.Post
+import com.example.kinddiscussion.Home.viewModel.CommentViewModel
 import com.example.kinddiscussion.Home.viewModel.PostViewModel
 
 import com.example.kinddiscussion.R
 import com.example.kinddiscussion.checkCancleDialog
+import com.example.kinddiscussion.checkDialog
+import com.example.kinddiscussion.getCurrentDateFormatted
 import com.example.kinddiscussion.grayLine
 import com.example.kinddiscussion.ui.theme.selectedColor
+import com.google.firebase.auth.FirebaseAuth
 
-//lateinit var commentList : List<Comment>
+lateinit var commentList : List<Comment>
+lateinit var commentIdList : List<String>
 @Composable
 fun PostScreen(
     navController : NavController,
-    postViewModel: PostViewModel = viewModel()
+    postViewModel: PostViewModel = viewModel(),
+    commentViewModel: CommentViewModel = viewModel()
 ) {
+
+    commentList = commentViewModel.commentList
+    commentIdList = commentViewModel.commentIdList
+
+    var commentText by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+    var dialogText by remember { mutableStateOf("") }
+    var sendButtonColor by remember {mutableStateOf(Color.Gray)}
+
+    if(commentText == "") sendButtonColor= Color.Gray
+    else sendButtonColor = selectedColor
+
 
     BackHandler {
         navController.popBackStack()
@@ -81,8 +102,10 @@ fun PostScreen(
     var selectedIndex = remember { mutableStateOf(-1) }
     val commentCount = post.commentCount.toString()
 
-    Column(
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
 
+    Column(
         modifier = Modifier.fillMaxSize()
     ) {
 
@@ -93,6 +116,7 @@ fun PostScreen(
                     .padding(start = 6.dp)
                     .width(35.dp)
                     .height(35.dp)
+
             )
         }
 
@@ -191,12 +215,12 @@ fun PostScreen(
                     painter = painterResource(id = R.drawable.like_ic), contentDescription = null,
                     modifier = Modifier
                         .padding(start = 6.dp)
-                        .width(35.dp)
-                        .height(35.dp)
+                        .width(30.dp)
+                        .height(30.dp)
                 )
             }
             Spacer(Modifier.width(5.dp))
-            Text(post.likeCount.toString(), style = TextStyle(fontSize = 26.sp))
+            Text(post.likeCount.toString(), style = TextStyle(fontSize = 22.sp))
         }
 
         Spacer(Modifier.height(10.dp))
@@ -208,50 +232,87 @@ fun PostScreen(
         )
 
         LazyColumn(
-
-            modifier = Modifier
-
+            modifier = Modifier.weight(1f)
         ) {
-            items(0) { index ->
+
+            items(commentList.size) { index ->
                 commentLayout(isCommentDropDownMenuExpanded, showCommentDeleteDialog, index, selectedIndex)
 
             }
         }
+        
 
-        Spacer(Modifier.height(20.dp))
-        var commentText by remember { mutableStateOf("") }
-
-        Row(
-            modifier = Modifier.padding(end = 10.dp)
-        ) {
-            OutlinedTextField(
-                value = commentText,
-                onValueChange = { newText -> commentText = newText },
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = selectedColor,
-                    unfocusedBorderColor = Color.Gray
-
-                ),
-                placeholder = { Text("댓글 작성하기") },
+            
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 15.dp)
-                    .weight(1f),
-                shape = RoundedCornerShape(15.dp),
-                textStyle = TextStyle(fontSize = 20.sp)
-            )
+                    .padding(horizontal = 12.dp)
+                    .fillMaxWidth().wrapContentSize()
+            ) {
+                OutlinedTextField(
+                    value = commentText,
+                    onValueChange = { newText -> commentText = newText },
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = selectedColor,
+                        unfocusedBorderColor = Color.Gray
 
-            IconButton(onClick = { }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.send_ic), contentDescription = null,
+                    ),
                     modifier = Modifier
-                        .padding(start = 6.dp)
-                        .width(30.dp)
-                        .height(30.dp)
+                        .fillMaxWidth()
+                        .weight(1f).imePadding(),
+                    placeholder = { Text("댓글 작성하기") },
+                    shape = RoundedCornerShape(15.dp),
+                    textStyle = TextStyle(fontSize = 16.sp)
                 )
-            }
 
-        }
+                IconButton(onClick = {
+
+                    if(commentText != "") {
+                        val auth = FirebaseAuth.getInstance()
+                        val userId = auth.currentUser!!.uid
+                        val currentDate = getCurrentDateFormatted()
+                        val writeComment = Comment(
+
+                            userId = userId, postId = postViewModel.postId.value,
+                            userName = auth.currentUser!!.displayName.toString(), date = currentDate,
+                            commentContent = commentText
+                        )
+
+                        val subjectId = postViewModel.post.value.subjectId
+                        val postId = postViewModel.postId.value
+
+                        val isSuccess = commentViewModel.writeComment(subjectId, postId, writeComment )
+                        if(!isSuccess) {
+                            showDialog = true
+                            dialogText = "댓글 작성에 실패했습니다."
+                        }
+                        else {
+                            commentText = ""
+
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                        }
+                    }
+                    else {
+                        showDialog = true
+                        dialogText = "댓글 내용을 입력해주세요."
+                    }
+
+                }) {
+
+                        Icon(
+                            painter = painterResource(id = R.drawable.send_ic), contentDescription = null,
+                            modifier = Modifier
+                                .padding(start = 6.dp)
+                                .width(20.dp)
+                                .height(20.dp),
+                            tint = sendButtonColor
+                        )
+
+
+
+                }
+
+            }
 
 
     }
@@ -269,6 +330,10 @@ fun PostScreen(
         )
     }
 
+    if(showDialog) {
+        checkDialog(onDismiss = { showDialog =false }, dialogText = dialogText)
+    }
+
 }
 
 
@@ -277,12 +342,13 @@ fun commentLayout(
     menuExpanded : MutableState<Boolean>, dialogShowed : MutableState<Boolean>,
     index : Int, selectedIndex : MutableState<Int>
 ) {
-    val comment = Comment()
+    val comment = commentList[index]
     Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .padding(start = 12.dp)
                 .wrapContentSize()
+
 
             ) {
 
@@ -336,8 +402,6 @@ fun commentLayout(
 
     Text(comment.commentContent,  modifier = Modifier.padding(start = 12.dp) )
     Spacer(Modifier.height(8.dp))
-    grayLine()
-
 
 }
 

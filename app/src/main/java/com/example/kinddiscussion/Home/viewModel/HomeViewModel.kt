@@ -7,8 +7,10 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kinddiscussion.Firebase.Comment
 import com.example.kinddiscussion.Firebase.Post
 import com.example.kinddiscussion.Firebase.Subject
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +26,8 @@ class SubjectViewModel : ViewModel() {
     private val _subjectIdList = mutableStateListOf<String>()
     val subjectIdList: List<String> get() = _subjectIdList
 
+    private val _threePosts  = mutableStateListOf<Post>()
+    val threePosts : List<Post> get() = _threePosts
 
     private val _subject :  MutableState<Subject> = mutableStateOf(Subject())
     private val _subjectId :  MutableState<String> = mutableStateOf("")
@@ -54,6 +58,33 @@ class SubjectViewModel : ViewModel() {
         }
     }
 
+     fun fetchLatestThreePosts()  {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = db.collection("subject").document(subjectId.value)
+                .collection("post")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(3)
+                .get()
+                .await()
+
+            _threePosts.clear()
+            result.documents.forEach {
+                document -> val post = document.toObject(Post::class.java)
+                if(post != null) {
+                    _threePosts.add(post)
+                }
+            }
+
+
+        }
+
+
+
+    }
+
+
+
     fun writeSubject(subject : Subject) : Boolean {
         try {
             viewModelScope.launch(Dispatchers.IO) {
@@ -80,6 +111,11 @@ class SubjectViewModel : ViewModel() {
         _subjectId.value = subjectId
     }
 
+    fun updatePost(post : Post) {
+        _threePosts.add(0, post)
+        if(_threePosts.size > 3) _threePosts.removeAt(_threePosts.size - 1)
+        subject.value.postCount = subject.value.postCount + 1
+    }
 
 }
 
@@ -95,6 +131,7 @@ class PostViewModel : ViewModel() {
     private val _postId :  MutableState<String> = mutableStateOf("")
     val post: State<Post> get() = _post
     val postId : State<String> get() = _postId
+
 
 
     fun fetchPosts(subjectId: String) {
@@ -124,10 +161,14 @@ class PostViewModel : ViewModel() {
                     .add(post)
                     .await()
 
+                val postCountRef = db.collection("subject").document(post.subjectId)
+                postCountRef.update("postCount", FieldValue.increment(1))
+
                 val postId = docRef.id
 
                 _postList.add(0, post)
                 _postIdList.add(0, postId)
+
             }
 
             return true
@@ -143,5 +184,68 @@ class PostViewModel : ViewModel() {
         _postId.value = postId
 
     }
+
+    fun updateCommentCount() {
+        _post.value.commentCount = _post.value.commentCount + 1
+    }
+
+}
+
+class CommentViewModel : ViewModel() {
+    private val db = FirebaseFirestore.getInstance()
+
+    private val _commentList = mutableStateListOf<Comment>()
+    val commentList: List<Comment> get() = _commentList
+    private val _commentIdList = mutableStateListOf<String>()
+    val commentIdList: List<String> get() = _commentIdList
+
+    fun fetchComments(subjectId: String, postId : String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = db.collection("subject")
+                .document(subjectId).collection("post")
+                .document(postId).collection("comment")
+                .get()
+                .await()
+
+            _commentList.clear()
+            _commentIdList.clear()
+
+            result.documents.forEach { document ->
+                val comment = document.toObject(Comment::class.java)
+                if (comment != null) {
+                    _commentList.add(comment)
+                    _commentIdList.add(document.id)
+                }
+            }
+        }
+    }
+
+    fun writeComment(subjectId : String, postId : String, comment : Comment) : Boolean {
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                val docRef = db.collection("subject")
+                    .document(subjectId).collection("post")
+                    .document(postId).collection("comment")
+                    .add(comment)
+                    .await()
+
+                val commentCountRef = db.collection("subject")
+                    .document(subjectId).collection("post").document(postId)
+                commentCountRef.update("postCount", FieldValue.increment(1))
+
+                val commentId = docRef.id
+
+                _commentList.add(0, comment)
+                _commentIdList.add(0, commentId)
+            }
+
+            return true
+        }
+        catch(e : Exception) {
+            return false
+        }
+
+    }
+
 
 }

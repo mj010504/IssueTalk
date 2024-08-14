@@ -92,6 +92,7 @@ fun WritePostScreen(
 
                     val isSuccess = postViewModel.writePost(writePost)
                     if(isSuccess) {
+                        subjectViewModel.updatePost(writePost)
                         navController.popBackStack()
                     }
                     else {
