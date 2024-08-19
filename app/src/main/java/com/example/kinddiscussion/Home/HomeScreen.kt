@@ -24,6 +24,7 @@ import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,9 +51,11 @@ import com.example.kinddiscussion.R
 import com.example.kinddiscussion.SplashScreen
 
 import com.example.kinddiscussion.blackLine
+import com.example.kinddiscussion.checkCancleDialog
 import com.example.kinddiscussion.fieldToImage
 import com.example.kinddiscussion.ui.theme.selectedColor
 import com.example.kinddiscussion.ui.theme.tabGreenColor
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
@@ -68,15 +71,19 @@ fun HomeScreen(
 
 ) {
 
+
     subjectList = subjectViewModel.subjectList
     subjectIdList = subjectViewModel.subjectIdList
 
     val tabs = listOf("전체", "사회", "정치", "경제", "연예", "기타")
     var selectedTabIndex by remember {mutableStateOf(0)}
+    var showLogInDialog by remember { mutableStateOf(false) }
 
 
     Column (
-        modifier = Modifier.fillMaxSize().navigationBarsPadding()
+        modifier = Modifier
+            .fillMaxSize()
+            .navigationBarsPadding()
     )
     {
 
@@ -95,7 +102,7 @@ fun HomeScreen(
             }
         }
 
-        writeSubjectButton(navCotnroller)
+        writeSubjectButton(navCotnroller, onShowDialog = { showLogInDialog = true})
         blackLine()
 
 
@@ -111,13 +118,21 @@ fun HomeScreen(
         }
     }
 
+    if(showLogInDialog) {
+        checkCancleDialog(onCheck = { navCotnroller.navigate("login") },
+            onDismiss = { showLogInDialog = false}, dialogText = "로그인 후 이용이 가능합니다. 로그인하시겠습니까?" )
+    }
+
 }
 
 @Composable
 fun writeSubjectButton (
-    navCotnroller : NavController
+    navCotnroller : NavController,
+    onShowDialog : () -> Unit
 
 ) {
+
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -125,7 +140,18 @@ fun writeSubjectButton (
         horizontalArrangement = Arrangement.End
     ) {
         OutlinedButton(
-            onClick ={navCotnroller.navigate("writeSubject")},
+            onClick ={
+                val auth = FirebaseAuth.getInstance()
+                val user = auth.currentUser
+                if(user!= null) {
+                    navCotnroller.navigate("writeSubject")
+                }
+                else {
+                    onShowDialog()
+                }
+
+
+       },
             colors = ButtonDefaults.outlinedButtonColors(
                 contentColor = selectedColor
             ),

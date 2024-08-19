@@ -55,6 +55,7 @@ import com.example.kinddiscussion.blackLine2
 import com.example.kinddiscussion.checkCancleDialog
 import com.example.kinddiscussion.fieldToImage
 import com.example.kinddiscussion.grayLine
+import com.google.firebase.auth.FirebaseAuth
 
 lateinit var threePosts : List<Post>
 
@@ -71,6 +72,11 @@ fun SubjectScreen(
 
     var isDropDownMenuExpanded by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showLogInDialog by remember { mutableStateOf(false) }
+
+    val auth = FirebaseAuth.getInstance()
+    val user = auth.currentUser
+
     BackHandler {
         navController.popBackStack()
     }
@@ -191,7 +197,14 @@ fun SubjectScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                IconButton(onClick = {  }) {
+                IconButton(onClick = {
+                    if(user == null) {
+                        showLogInDialog = true
+                    }
+                    else {
+
+                    }
+                }) {
                     Icon(
                         painter = painterResource(id = R.drawable.agree), contentDescription = null,
                         modifier = Modifier
@@ -209,7 +222,14 @@ fun SubjectScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                IconButton(onClick = { }) {
+                IconButton(onClick = {
+                    if(user == null) {
+                        showLogInDialog = true
+                    }
+                    else {
+
+                    }
+                }) {
                     Icon(
                         painter = painterResource(id = R.drawable.scale), contentDescription = null,
                         modifier = Modifier
@@ -227,7 +247,14 @@ fun SubjectScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                IconButton(onClick = {  }) {
+                IconButton(onClick = {
+                    if(user == null) {
+                        showLogInDialog = true
+                    }
+                    else {
+
+                    }
+                }) {
                     Icon(
                         painter = painterResource(id = R.drawable.disagree), contentDescription = null,
                         modifier = Modifier
@@ -282,6 +309,11 @@ fun SubjectScreen(
 
     if(showDeleteDialog) {
         checkCancleDialog(onCheck = {  }, onDismiss = { showDeleteDialog = false }, dialogText = "정말로 이 주제를 삭제하시겠습니까?")
+    }
+
+    if(showLogInDialog) {
+        checkCancleDialog(onCheck = { navController.navigate("login") },
+            onDismiss = { showLogInDialog = false}, dialogText = "로그인 후 이용이 가능합니다. 로그인하시겠습니까?" )
     }
 
 

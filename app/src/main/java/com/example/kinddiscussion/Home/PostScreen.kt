@@ -84,6 +84,7 @@ fun PostScreen(
     var showDialog by remember { mutableStateOf(false) }
     var dialogText by remember { mutableStateOf("") }
     var sendButtonColor by remember {mutableStateOf(Color.Gray)}
+    var showLogInDialog by remember { mutableStateOf(false) }
 
     if(commentText == "") sendButtonColor= Color.Gray
     else sendButtonColor = selectedColor
@@ -98,7 +99,7 @@ fun PostScreen(
     var isPostDropDownMenuExpanded by remember { mutableStateOf(false) }
     var isCommentDropDownMenuExpanded = remember { mutableStateOf(false) }
     var showPostDeleteDialog by remember { mutableStateOf(false) }
-    var showCommentDeleteDialog = remember { mutableStateOf(false) }
+    var showCommentDeleteDialog by remember { mutableStateOf(false) }
     var selectedIndex = remember { mutableStateOf(-1) }
     val commentCount = post.commentCount.toString()
 
@@ -236,7 +237,7 @@ fun PostScreen(
         ) {
 
             items(commentList.size) { index ->
-                commentLayout(isCommentDropDownMenuExpanded, showCommentDeleteDialog, index, selectedIndex)
+                commentLayout(isCommentDropDownMenuExpanded, {showCommentDeleteDialog = true}, index, selectedIndex)
 
             }
         }
@@ -266,36 +267,46 @@ fun PostScreen(
 
                 IconButton(onClick = {
 
-                    if(commentText != "") {
-                        val auth = FirebaseAuth.getInstance()
-                        val userId = auth.currentUser!!.uid
-                        val currentDate = getCurrentDateFormatted()
-                        val writeComment = Comment(
+                    val auth = FirebaseAuth.getInstance()
+                    val user = auth.currentUser
 
-                            userId = userId, postId = postViewModel.postId.value,
-                            userName = auth.currentUser!!.displayName.toString(), date = currentDate,
-                            commentContent = commentText
-                        )
 
-                        val subjectId = postViewModel.post.value.subjectId
-                        val postId = postViewModel.postId.value
 
-                        val isSuccess = commentViewModel.writeComment(subjectId, postId, writeComment )
-                        if(!isSuccess) {
-                            showDialog = true
-                            dialogText = "댓글 작성에 실패했습니다."
+                        if (commentText != "") {
+
+                            if (user == null) {
+                                showLogInDialog = true
+                            } else {
+                                val auth = FirebaseAuth.getInstance()
+                                val userId = auth.currentUser!!.uid
+                                val currentDate = getCurrentDateFormatted()
+                                val writeComment = Comment(
+
+                                    userId = userId,
+                                    postId = postViewModel.postId.value,
+                                    userName = auth.currentUser!!.displayName.toString(),
+                                    date = currentDate,
+                                    commentContent = commentText
+                                )
+
+                                val subjectId = postViewModel.post.value.subjectId
+                                val postId = postViewModel.postId.value
+
+                                val isSuccess =
+                                    commentViewModel.writeComment(subjectId, postId, writeComment)
+                                if (!isSuccess) {
+                                    showDialog = true
+                                    dialogText = "댓글 작성에 실패했습니다."
+                                } else {
+                                    commentText = ""
+
+                                    keyboardController?.hide()
+                                    focusManager.clearFocus()
+                                }
+                            }
+
                         }
-                        else {
-                            commentText = ""
 
-                            keyboardController?.hide()
-                            focusManager.clearFocus()
-                        }
-                    }
-                    else {
-                        showDialog = true
-                        dialogText = "댓글 내용을 입력해주세요."
-                    }
 
                 }) {
 
@@ -317,8 +328,8 @@ fun PostScreen(
 
     }
 
-    if(showCommentDeleteDialog.value) {
-        checkCancleDialog(onCheck = {  }, onDismiss = { showCommentDeleteDialog.value = false }, dialogText = "정말로 이 댓글을 삭제하시겠습니까?")
+    if(showCommentDeleteDialog) {
+        checkCancleDialog(onCheck = {  }, onDismiss = { showCommentDeleteDialog = false }, dialogText = "정말로 이 댓글을 삭제하시겠습니까?")
     }
 
 
@@ -334,12 +345,17 @@ fun PostScreen(
         checkDialog(onDismiss = { showDialog =false }, dialogText = dialogText)
     }
 
+    if(showLogInDialog) {
+        checkCancleDialog(onCheck = { navController.navigate("login") },
+            onDismiss = { showLogInDialog = false}, dialogText = "로그인 후 이용이 가능합니다. 로그인하시겠습니까?" )
+    }
+
 }
 
 
 @Composable
 fun commentLayout(
-    menuExpanded : MutableState<Boolean>, dialogShowed : MutableState<Boolean>,
+    menuExpanded : MutableState<Boolean>, onShowDialog : () -> Unit,
     index : Int, selectedIndex : MutableState<Int>
 ) {
     val comment = commentList[index]
@@ -387,7 +403,7 @@ fun commentLayout(
 
                         DropdownMenuItem(onClick = {
                             menuExpanded.value = false
-                            dialogShowed.value = true
+                            onShowDialog()
                         }
                         ) {
                             Text("삭제하기")

@@ -24,6 +24,10 @@ import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,9 +46,11 @@ import com.example.kinddiscussion.Home.viewModel.SubjectViewModel
 
 import com.example.kinddiscussion.R
 import com.example.kinddiscussion.Search.recentSearch
+import com.example.kinddiscussion.checkCancleDialog
 import com.example.kinddiscussion.fieldToImage
 import com.example.kinddiscussion.grayLine
 import com.example.kinddiscussion.ui.theme.selectedColor
+import com.google.firebase.auth.FirebaseAuth
 import java.time.format.TextStyle
 
 lateinit var postList : List<Post>
@@ -61,6 +67,7 @@ fun SubjectPostScreen(
 
     val fieldImage = fieldToImage(subjectViewModel.subject.value.subjectField)
     val subjectTitle = subjectViewModel.subject.value.title
+    var showLogInDialog by remember { mutableStateOf(false) }
 
     postList = postViewModel.postList
     postIdList = postViewModel.postIdList
@@ -105,7 +112,7 @@ fun SubjectPostScreen(
         }
 
         Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-            writePostButton(navController)
+            writePostButton(navController, {showLogInDialog = true})
         }
 
         Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -124,14 +131,29 @@ fun SubjectPostScreen(
         }
 
     }
+
+    if(showLogInDialog) {
+        checkCancleDialog(onCheck = { navController.navigate("login") },
+            onDismiss = { showLogInDialog = false}, dialogText = "로그인 후 이용이 가능합니다. 로그인하시겠습니까?" )
+    }
 }
 
 @Composable
 fun writePostButton (
-    navController: NavController
+    navController: NavController,
+    onShowDialog : () -> Unit
 ){
     OutlinedButton(
-        onClick = { navController.navigate("writePost")  },
+        onClick = {
+            val auth = FirebaseAuth.getInstance()
+            val user = auth.currentUser
+            if(user!= null) {
+                navController.navigate("writePost")
+            }
+            else {
+                onShowDialog()
+            }
+         },
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = selectedColor
         ),
