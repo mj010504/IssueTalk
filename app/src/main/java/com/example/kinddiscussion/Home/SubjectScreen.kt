@@ -53,9 +53,11 @@ import com.example.kinddiscussion.R
 import com.example.kinddiscussion.blackLine
 import com.example.kinddiscussion.blackLine2
 import com.example.kinddiscussion.checkCancleDialog
+import com.example.kinddiscussion.checkDialog
 import com.example.kinddiscussion.fieldToImage
 import com.example.kinddiscussion.grayLine
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 lateinit var threePosts : List<Post>
 
@@ -73,6 +75,8 @@ fun SubjectScreen(
     var isDropDownMenuExpanded by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showLogInDialog by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+    var dialogText by remember { mutableStateOf("") }
 
     val auth = FirebaseAuth.getInstance()
     val user = auth.currentUser
@@ -96,10 +100,15 @@ fun SubjectScreen(
             }
             Spacer(Modifier.weight(1f))
 
+            if(user != null && user.uid == subject.userId) {
             Box() {
-                IconButton(onClick = { isDropDownMenuExpanded = true} ) {
+                IconButton(onClick = {
+                    isDropDownMenuExpanded = true
+
+                }) {
                     Icon(
-                        painter = painterResource(id = R.drawable.vertical_menu), contentDescription = null,
+                        painter = painterResource(id = R.drawable.vertical_menu),
+                        contentDescription = null,
                         modifier = Modifier
                             .width(20.dp)
                             .height(20.dp)
@@ -122,6 +131,10 @@ fun SubjectScreen(
                         Text("삭제하기")
                     }
                 }
+
+            }
+
+
             }
 
 
@@ -308,7 +321,16 @@ fun SubjectScreen(
 
 
     if(showDeleteDialog) {
-        checkCancleDialog(onCheck = {  }, onDismiss = { showDeleteDialog = false }, dialogText = "정말로 이 주제를 삭제하시겠습니까?")
+        checkCancleDialog(onCheck = {
+            showDeleteDialog = false
+           val isSuccess = subjectViewModel.deleteSubject()
+            if(isSuccess) navController.popBackStack()
+            else {
+                showDialog = true
+                dialogText = "주제 삭제에 실패했습니다."
+            }
+
+        }, onDismiss = { showDeleteDialog = false }, dialogText = "정말로 이 주제를 삭제하시겠습니까?")
     }
 
     if(showLogInDialog) {
@@ -316,6 +338,9 @@ fun SubjectScreen(
             onDismiss = { showLogInDialog = false}, dialogText = "로그인 후 이용이 가능합니다. 로그인하시겠습니까?" )
     }
 
+    if(showDialog) {
+        checkDialog(onDismiss = {showDialog =false}, dialogText = dialogText )
+    }
 
 }
 
@@ -340,7 +365,8 @@ fun postPreviewLayout(
             .wrapContentSize()
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(start = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

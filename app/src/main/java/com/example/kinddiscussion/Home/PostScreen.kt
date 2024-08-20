@@ -1,29 +1,27 @@
 package com.example.kinddiscussion.Home
 
-import android.graphics.Paint.Align
-import android.util.Log
-import android.view.inputmethod.InputMethodManager
+
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
+
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
+
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
@@ -67,15 +65,20 @@ import com.example.kinddiscussion.getCurrentDateFormatted
 import com.example.kinddiscussion.grayLine
 import com.example.kinddiscussion.ui.theme.selectedColor
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 lateinit var commentList : List<Comment>
 lateinit var commentIdList : List<String>
+
 @Composable
 fun PostScreen(
     navController : NavController,
     postViewModel: PostViewModel = viewModel(),
     commentViewModel: CommentViewModel = viewModel()
 ) {
+
+    val auth = FirebaseAuth.getInstance()
+    val user = auth.currentUser
 
     commentList = commentViewModel.commentList
     commentIdList = commentViewModel.commentIdList
@@ -85,6 +88,7 @@ fun PostScreen(
     var dialogText by remember { mutableStateOf("") }
     var sendButtonColor by remember {mutableStateOf(Color.Gray)}
     var showLogInDialog by remember { mutableStateOf(false) }
+    var commentDeleteIndex by remember { mutableStateOf(0) }
 
     if(commentText == "") sendButtonColor= Color.Gray
     else sendButtonColor = selectedColor
@@ -130,19 +134,20 @@ fun PostScreen(
                 modifier = Modifier
                     .width(20.dp)
                     .height(20.dp)
-
-                    .clickable {
-
-                    }
             ) {
 
-                Box() {
-                    IconButton(onClick = {isPostDropDownMenuExpanded = true}) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.vertical_menu),
-                            contentDescription = null
-                        )
-                    }
+                if(user != null && user.uid == post.userId)  {
+                    Box() {
+                        IconButton(onClick = {
+                            isPostDropDownMenuExpanded = true
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.vertical_menu),
+                                contentDescription = null
+                            )
+                        }
+                }
+
 
 
                     DropdownMenu(
@@ -165,6 +170,7 @@ fun PostScreen(
                         }
                         ) {
                             Text("삭제하기")
+
                         }
                     }
                 }
@@ -237,7 +243,10 @@ fun PostScreen(
         ) {
 
             items(commentList.size) { index ->
-                commentLayout(isCommentDropDownMenuExpanded, {showCommentDeleteDialog = true}, index, selectedIndex)
+                commentLayout(isCommentDropDownMenuExpanded, {
+                    showCommentDeleteDialog = true
+                    commentDeleteIndex = it },
+                    index, selectedIndex)
 
             }
         }
@@ -267,8 +276,8 @@ fun PostScreen(
 
                 IconButton(onClick = {
 
-                    val auth = FirebaseAuth.getInstance()
-                    val user = auth.currentUser
+                        val auth = FirebaseAuth.getInstance()
+                        val user = auth.currentUser
 
 
 
@@ -299,7 +308,7 @@ fun PostScreen(
                                     dialogText = "댓글 작성에 실패했습니다."
                                 } else {
                                     commentText = ""
-
+                                    postViewModel.updateCommentCount()
                                     keyboardController?.hide()
                                     focusManager.clearFocus()
                                 }
@@ -329,13 +338,40 @@ fun PostScreen(
     }
 
     if(showCommentDeleteDialog) {
-        checkCancleDialog(onCheck = {  }, onDismiss = { showCommentDeleteDialog = false }, dialogText = "정말로 이 댓글을 삭제하시겠습니까?")
+        checkCancleDialog(onCheck = {
+            showCommentDeleteDialog = false
+              val isSuccess =  commentViewModel.deleteComment(
+                   subjectId = postViewModel.post.value.subjectId,
+                   postId = postViewModel.postId.value,
+                   commentId = commentIdList[commentDeleteIndex]
+               )
+            if(isSuccess) {
+                postViewModel.decreaseCommentCount()
+            }
+            else {
+                showDialog = true
+                dialogText = "댓글 삭제에 실패했습니다."
+            }
+
+
+        }, onDismiss = { showCommentDeleteDialog = false }, dialogText = "정말로 이 댓글을 삭제하시겠습니까?")
     }
 
 
     if(showPostDeleteDialog) {
         checkCancleDialog(
-            onCheck = { },
+            onCheck = {
+                showPostDeleteDialog = false
+                val isSuccess = postViewModel.deletePost()
+                if(isSuccess) navController.popBackStack()
+                else {
+                    showDialog = true
+                    dialogText = "게시글 삭제에 실패했습니다."
+                }
+
+
+
+            },
             onDismiss = { showPostDeleteDialog = false },
             dialogText = "정말로 이 게시글을 삭제하시겠습니까?"
         )
@@ -355,7 +391,7 @@ fun PostScreen(
 
 @Composable
 fun commentLayout(
-    menuExpanded : MutableState<Boolean>, onShowDialog : () -> Unit,
+    menuExpanded : MutableState<Boolean>, onShowDialog : (Int) -> Unit,
     index : Int, selectedIndex : MutableState<Int>
 ) {
     val comment = commentList[index]
@@ -373,46 +409,53 @@ fun commentLayout(
                 Text(comment.date, color = Color.Gray, modifier = Modifier.padding(3.dp))
                  Spacer(modifier = Modifier.weight(1f))
 
-            Box() {
-                IconButton(onClick = {menuExpanded.value = true
-                        selectedIndex.value = index
-                }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.vertical_menu), contentDescription = null,
-                        modifier = Modifier
-                            .width(20.dp)
-                            .height(20.dp)
+                val auth = FirebaseAuth.getInstance()
+                val user = auth.currentUser
+                if(user != null && user.uid == comment.userId) {
+                    Box() {
+                        IconButton(onClick = {
+                            menuExpanded.value = true
+                            selectedIndex.value = index
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.vertical_menu),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .width(20.dp)
+                                    .height(20.dp)
 
-                    )
-                }
-
-                if (selectedIndex.value == index && menuExpanded.value) {
-                    DropdownMenu(
-                        modifier = Modifier
-                            .wrapContentSize(),
-                        expanded = menuExpanded.value,
-                        onDismissRequest = { menuExpanded.value = false }
-
-                    ) {
-                        DropdownMenuItem(onClick = {
-                            menuExpanded.value = false
-                        }
-                        ) {
-                            Text("수정하기")
+                            )
                         }
 
-                        DropdownMenuItem(onClick = {
-                            menuExpanded.value = false
-                            onShowDialog()
+
+                        if (selectedIndex.value == index && menuExpanded.value) {
+                            DropdownMenu(
+                                modifier = Modifier
+                                    .wrapContentSize(),
+                                expanded = menuExpanded.value,
+                                onDismissRequest = { menuExpanded.value = false }
+
+                            ) {
+                                DropdownMenuItem(onClick = {
+                                    menuExpanded.value = false
+                                }
+                                ) {
+                                    Text("수정하기")
+                                }
+
+                                DropdownMenuItem(onClick = {
+                                    menuExpanded.value = false
+                                    onShowDialog(index)
+                                }
+                                ) {
+                                    Text("삭제하기")
+                                }
+                            }
                         }
-                        ) {
-                            Text("삭제하기")
-                        }
+
+
                     }
                 }
-
-
-            }
 
         }
 

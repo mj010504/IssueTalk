@@ -16,7 +16,7 @@ import com.google.firebase.firestore.Query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.lang.Exception
+
 
 class SubjectViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
@@ -26,13 +26,13 @@ class SubjectViewModel : ViewModel() {
     private val _subjectIdList = mutableStateListOf<String>()
     val subjectIdList: List<String> get() = _subjectIdList
 
-    private val _threePosts  = mutableStateListOf<Post>()
-    val threePosts : List<Post> get() = _threePosts
+    private val _threePosts = mutableStateListOf<Post>()
+    val threePosts: List<Post> get() = _threePosts
 
-    private val _subject :  MutableState<Subject> = mutableStateOf(Subject())
-    private val _subjectId :  MutableState<String> = mutableStateOf("")
+    private val _subject: MutableState<Subject> = mutableStateOf(Subject())
+    private val _subjectId: MutableState<String> = mutableStateOf("")
     val subject: State<Subject> get() = _subject
-    val subjectId : State<String> get() = _subjectId
+    val subjectId: State<String> get() = _subjectId
 
     init {
         fetchSubjects()
@@ -58,7 +58,7 @@ class SubjectViewModel : ViewModel() {
         }
     }
 
-     fun fetchLatestThreePosts()  {
+    fun fetchLatestThreePosts() {
 
         viewModelScope.launch(Dispatchers.IO) {
             val result = db.collection("subject").document(subjectId.value)
@@ -69,9 +69,9 @@ class SubjectViewModel : ViewModel() {
                 .await()
 
             _threePosts.clear()
-            result.documents.forEach {
-                document -> val post = document.toObject(Post::class.java)
-                if(post != null) {
+            result.documents.forEach { document ->
+                val post = document.toObject(Post::class.java)
+                if (post != null) {
                     _threePosts.add(post)
                 }
             }
@@ -80,12 +80,10 @@ class SubjectViewModel : ViewModel() {
         }
 
 
-
     }
 
 
-
-    fun writeSubject(subject : Subject) : Boolean {
+    fun writeSubject(subject: Subject): Boolean {
         try {
             viewModelScope.launch(Dispatchers.IO) {
                 val docRef = db.collection("subject")
@@ -99,8 +97,7 @@ class SubjectViewModel : ViewModel() {
             }
 
             return true
-        }
-        catch(e : Exception) {
+        } catch (e: Exception) {
             return false
         }
 
@@ -111,12 +108,30 @@ class SubjectViewModel : ViewModel() {
         _subjectId.value = subjectId
     }
 
-    fun updatePost(post : Post) {
+    fun updatePost(post: Post) {
         _threePosts.add(0, post)
-        if(_threePosts.size > 3) _threePosts.removeAt(_threePosts.size - 1)
+        if (_threePosts.size > 3) _threePosts.removeAt(_threePosts.size - 1)
         subject.value.postCount = subject.value.postCount + 1
     }
 
+    fun deleteSubject(): Boolean {
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                db.collection("subject").document(subjectId.value).delete().await()  // .await() 사용
+                val index = _subjectIdList.indexOf(subjectId.value)
+                if (index >= 0) {
+                    _subjectList.removeAt(index)
+                    _subjectIdList.removeAt(index)
+                }
+            }
+
+            return true
+        } catch (e: Exception) {
+            return  false
+        }
+
+
+    }
 }
 
 class PostViewModel : ViewModel() {
@@ -189,6 +204,32 @@ class PostViewModel : ViewModel() {
         _post.value.commentCount = _post.value.commentCount + 1
     }
 
+    fun decreaseCommentCount() {
+        _post.value.commentCount = _post.value.commentCount - 1
+    }
+    fun deletePost() : Boolean {
+
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                db.collection("subject").document(post.value.subjectId).
+                collection("post").document(postId.value).delete().await()
+                        val index = _postIdList.indexOf(postId.value)
+                        if(index >= 0) {
+                            _postList.removeAt(index)
+                            _postIdList.removeAt(index)
+                        }
+
+                        db.collection("subject").document(post.value.subjectId)
+                            .update("postCount", FieldValue.increment(-1))
+                    }
+            return true
+        }
+        catch (e : Exception) {
+            return false
+        }
+
+    }
+
 }
 
 class CommentViewModel : ViewModel() {
@@ -231,7 +272,7 @@ class CommentViewModel : ViewModel() {
 
                 val commentCountRef = db.collection("subject")
                     .document(subjectId).collection("post").document(postId)
-                commentCountRef.update("postCount", FieldValue.increment(1))
+                commentCountRef.update("commentCount", FieldValue.increment(1))
 
                 val commentId = docRef.id
 
@@ -244,6 +285,38 @@ class CommentViewModel : ViewModel() {
         catch(e : Exception) {
             return false
         }
+
+    }
+
+    fun deleteComment(subjectId : String, postId : String,commentId : String) : Boolean {
+
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+
+                db.collection("subject").document(subjectId).
+                collection("post").document(postId)
+                    .collection("comment").document(commentId).delete().await()
+
+                        val index = _commentIdList.indexOf(commentId)
+                        if(index >= 0) {
+                            _commentList.removeAt(index)
+                            _commentIdList.removeAt(index)
+
+                            db.collection("subject").document(subjectId).
+                            collection("post").document(postId)
+                                .update("commentCount", FieldValue.increment(-1))
+                        }
+            }
+
+            return true
+        }
+        catch (e :Exception) {
+
+            return false
+        }
+
+
+
 
     }
 
