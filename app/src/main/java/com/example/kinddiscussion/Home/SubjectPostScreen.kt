@@ -180,6 +180,13 @@ fun postLayout (
 
                 val subjecetId = post.subjectId
                 commentViewModel.fetchComments(subjecetId, postIdList[index])
+
+                val auth = FirebaseAuth.getInstance()
+                val user = auth.currentUser
+                if(user != null) {
+                    postViewModel.isPostLikedByUser(user.uid)
+                }
+
                 navController.navigate("post")
             }
     ) {
@@ -207,7 +214,7 @@ fun postLayout (
 
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.like_ic), contentDescription = null,
+                        painter = painterResource(id = R.drawable.like_off), contentDescription = null,
                         tint = Color.Unspecified
                     )
                 }

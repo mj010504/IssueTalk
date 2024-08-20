@@ -147,6 +147,9 @@ class PostViewModel : ViewModel() {
     val post: State<Post> get() = _post
     val postId : State<String> get() = _postId
 
+    private val _isLiked : MutableState<Boolean> = mutableStateOf(false)
+    val isLiked : State<Boolean> get() = _isLiked
+
 
 
     fun fetchPosts(subjectId: String) {
@@ -230,6 +233,63 @@ class PostViewModel : ViewModel() {
 
     }
 
+    fun isPostLikedByUser(userId : String) {
+
+            viewModelScope.launch(Dispatchers.IO) {
+                val postRef = db.collection("subject")
+                    .document(post.value.subjectId).collection("post")
+                    .document(postId.value)
+
+                val likeRef = postRef.collection("like").document(userId)
+
+                likeRef.get().addOnSuccessListener { document ->
+                    if(document.exists()) {
+                        _isLiked.value = true
+                        postRef.update("likeCount", FieldValue.increment(1))
+                    }
+                    else {
+                        _isLiked.value = false
+                    }
+                }
+
+            }
+
+
+    }
+    fun likePost(userId : String) {
+
+            viewModelScope.launch(Dispatchers.IO) {
+                val postRef = db.collection("subject")
+                    .document(post.value.subjectId).collection("post")
+                    .document(postId.value)
+
+                val likeRef = postRef.collection("like").document(userId)
+
+                likeRef.get().addOnSuccessListener { document ->
+                    if(!document.exists()) {
+                        likeRef.set("isLike" to true)
+                        postRef.update("likeCount", FieldValue.increment(1))
+                        _isLiked.value = true
+                        _post.value.likeCount += 1
+                    }
+                    else {
+                        likeRef.delete()
+                        _isLiked.value = false
+                        _post.value.likeCount -= 1
+                        postRef.update("likeCount", FieldValue.increment(-1))
+                    }
+                }
+
+            }
+
+
+
+    }
+
+
+
+
+
 }
 
 class CommentViewModel : ViewModel() {
@@ -281,12 +341,12 @@ class CommentViewModel : ViewModel() {
             }
 
             return true
-        }
-        catch(e : Exception) {
+        } catch (e: Exception) {
             return false
         }
-
     }
+
+
 
     fun deleteComment(subjectId : String, postId : String,commentId : String) : Boolean {
 

@@ -387,7 +387,7 @@ fun postPreviewLayout(
 
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.like_ic), contentDescription = null,
+                        painter = painterResource(id = R.drawable.like_off), contentDescription = null,
                         tint = Color.Unspecified
                     )
                 }

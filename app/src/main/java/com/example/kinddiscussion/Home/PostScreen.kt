@@ -89,9 +89,13 @@ fun PostScreen(
     var sendButtonColor by remember {mutableStateOf(Color.Gray)}
     var showLogInDialog by remember { mutableStateOf(false) }
     var commentDeleteIndex by remember { mutableStateOf(0) }
+    var isLiked by remember { mutableStateOf(false) }
+    var likeImage by remember{mutableStateOf(0)}
 
-    if(commentText == "") sendButtonColor= Color.Gray
-    else sendButtonColor = selectedColor
+    isLiked = postViewModel.isLiked.value
+    likeImage = if(isLiked) R.drawable.like_on else R.drawable.like_off
+
+    sendButtonColor=  if(commentText == "") Color.Gray else selectedColor
 
 
     BackHandler {
@@ -217,13 +221,22 @@ fun PostScreen(
                 .fillMaxWidth()
                 .padding(top = 10.dp)
         ) {
-            IconButton(onClick = { }) {
+            IconButton(onClick = {
+                if(user != null) {
+                    postViewModel.likePost(user.uid)
+                }
+                else {
+                    showLogInDialog = true
+                }
+            }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.like_ic), contentDescription = null,
+                    painter = painterResource(id = likeImage), contentDescription = null,
                     modifier = Modifier
                         .padding(start = 6.dp)
                         .width(30.dp)
-                        .height(30.dp)
+                        .height(30.dp),
+                    tint = Color.Unspecified
+
                 )
             }
             Spacer(Modifier.width(5.dp))
