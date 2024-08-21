@@ -32,8 +32,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -54,15 +57,16 @@ fun EditPostScreen(
 ) {
 
     var titleText by remember { mutableStateOf("") }
-    var contentText by remember { mutableStateOf("") }
+    var contentText by remember { mutableStateOf(TextFieldValue(postViewModel.post.value.content)) }
     var showEditDialog by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     var dialogText by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
+
     LaunchedEffect(Unit) {
         titleText = postViewModel.post.value.title
-        contentText = postViewModel.post.value.content
+        contentText = contentText.copy(selection = TextRange(contentText.text.length))
         focusRequester.requestFocus()
     }
 
@@ -90,7 +94,7 @@ fun EditPostScreen(
             }
             OutlinedButton(
                 onClick = {
-                    val isSuccess = postViewModel.editPost(titleText, contentText)
+                    val isSuccess = postViewModel.editPost(titleText, contentText.text)
                     if(isSuccess) navController.popBackStack()
                     else {showDialog = true; dialogText = "게시글 수정에 실패했습니다."}
                 },

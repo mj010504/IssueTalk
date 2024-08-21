@@ -97,7 +97,10 @@ fun HomeScreen(
                 Tab(
                     text = {Text(title, style = TextStyle(fontWeight = FontWeight.Bold))},
                     selected = selectedTabIndex == index,
-                    onClick = { selectedTabIndex = index}
+                    onClick = {
+                        selectedTabIndex = index
+                        subjectViewModel.fetchSubjectByField(tabs[index])
+                    }
 
                 )
             }

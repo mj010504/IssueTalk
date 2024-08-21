@@ -63,6 +63,37 @@ class SubjectViewModel : ViewModel() {
         }
     }
 
+    fun fetchSubjectByField(field: String) {
+
+
+        viewModelScope.launch(Dispatchers.IO) {
+            if(field == "전체" ) {
+                fetchSubjects()
+            }
+            else {
+                val subjectRef = db.collection("subject")
+                    .orderBy("timestamp", Query.Direction.DESCENDING)
+
+                val query = subjectRef.whereEqualTo("subjectField",field)
+
+                val result = query.get().await()
+
+
+                _subjectList.clear()
+                _subjectIdList.clear()
+
+                result.documents.forEach { document ->
+                    val subject = document.toObject(Subject::class.java)
+                    if (subject != null) {
+                        _subjectList.add(subject)
+                        _subjectIdList.add(document.id)
+                    }
+                }
+            }
+            }
+
+    }
+
     fun fetchLatestThreePosts() {
 
         viewModelScope.launch(Dispatchers.IO) {
