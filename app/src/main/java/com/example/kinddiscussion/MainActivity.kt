@@ -1,5 +1,6 @@
 package com.example.kinddiscussion
 
+import PostViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -41,6 +42,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.kinddiscussion.Auth.LoginScreen
 import com.example.kinddiscussion.Auth.SignUpScreen
+import com.example.kinddiscussion.Home.EditPostScreen
 import com.example.kinddiscussion.Home.HomeScreen
 import com.example.kinddiscussion.Home.PostScreen
 import com.example.kinddiscussion.Home.SubjectPostScreen
@@ -48,7 +50,6 @@ import com.example.kinddiscussion.Home.SubjectScreen
 import com.example.kinddiscussion.Home.WritePostScreen
 import com.example.kinddiscussion.Home.WriteSubjectScreen
 import com.example.kinddiscussion.Home.viewModel.CommentViewModel
-import com.example.kinddiscussion.Home.viewModel.PostViewModel
 import com.example.kinddiscussion.Home.viewModel.SubjectViewModel
 import com.example.kinddiscussion.Menu.MenuScreen
 import com.example.kinddiscussion.Search.SearchScreen
@@ -138,6 +139,7 @@ fun navigation(
             composable("login") { LoginScreen(navController) }
             composable("signUp") { SignUpScreen(navController) }
             composable("writePost") { WritePostScreen(navController, subjectViewModel, postViewModel) }
+            composable("editPost") { EditPostScreen(navController, postViewModel)}
         }
     }
 }

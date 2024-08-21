@@ -1,6 +1,7 @@
 package com.example.kinddiscussion.Home
 
 
+import PostViewModel
 import androidx.activity.compose.BackHandler
 
 import androidx.compose.foundation.clickable
@@ -37,6 +38,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
 import androidx.compose.ui.modifier.modifierLocalConsumer
@@ -56,9 +59,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.kinddiscussion.Firebase.Comment
 import com.example.kinddiscussion.Firebase.Post
 import com.example.kinddiscussion.Home.viewModel.CommentViewModel
-import com.example.kinddiscussion.Home.viewModel.PostViewModel
+
 
 import com.example.kinddiscussion.R
+import com.example.kinddiscussion.blackLine
 import com.example.kinddiscussion.checkCancleDialog
 import com.example.kinddiscussion.checkDialog
 import com.example.kinddiscussion.getCurrentDateFormatted
@@ -90,10 +94,11 @@ fun PostScreen(
     var showLogInDialog by remember { mutableStateOf(false) }
     var commentDeleteIndex by remember { mutableStateOf(0) }
     var isLiked by remember { mutableStateOf(false) }
-    var likeImage by remember{mutableStateOf(0)}
+
+
 
     isLiked = postViewModel.isLiked.value
-    likeImage = if(isLiked) R.drawable.like_on else R.drawable.like_off
+
 
     sendButtonColor=  if(commentText == "") Color.Gray else selectedColor
 
@@ -163,6 +168,7 @@ fun PostScreen(
                     ) {
                         DropdownMenuItem(onClick = {
                             isPostDropDownMenuExpanded = false
+                            navController.navigate("editPost")
                         }
                         ) {
                             Text("수정하기")
@@ -230,17 +236,17 @@ fun PostScreen(
                 }
             }) {
                 Icon(
-                    painter = painterResource(id = likeImage), contentDescription = null,
+                    painter = painterResource(id = if(isLiked) R.drawable.like_on else R.drawable.like_off), contentDescription = null,
                     modifier = Modifier
                         .padding(start = 6.dp)
                         .width(30.dp)
                         .height(30.dp),
-                    tint = Color.Unspecified
+                    tint = if(isLiked) Color.Unspecified else Color.Gray
 
                 )
             }
             Spacer(Modifier.width(5.dp))
-            Text(post.likeCount.toString(), style = TextStyle(fontSize = 22.sp))
+            Text(post.likeCount.toString(), style = TextStyle(fontSize = 22.sp, color = if(isLiked) Color.Unspecified else Color.Gray))
         }
 
         Spacer(Modifier.height(10.dp))
@@ -251,12 +257,17 @@ fun PostScreen(
             modifier = Modifier.padding(start = 15.dp, top = 15.dp)
         )
 
+        Spacer(Modifier.height(8.dp))
+        grayLine()
+        Spacer(Modifier.height(5.dp))
+
         LazyColumn(
             modifier = Modifier.weight(1f)
         ) {
 
             items(commentList.size) { index ->
-                commentLayout(isCommentDropDownMenuExpanded, {
+                commentLayout(isCommentDropDownMenuExpanded,
+                    {
                     showCommentDeleteDialog = true
                     commentDeleteIndex = it },
                     index, selectedIndex)
@@ -269,19 +280,22 @@ fun PostScreen(
             Row(
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
-                    .fillMaxWidth().wrapContentSize()
+                    .fillMaxWidth()
+                    .wrapContentSize()
             ) {
                 OutlinedTextField(
                     value = commentText,
                     onValueChange = { newText -> commentText = newText },
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = selectedColor,
-                        unfocusedBorderColor = Color.Gray
+                        unfocusedBorderColor = Color.Gray,
+                        cursorColor = Color.Black
 
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f).imePadding(),
+                        .weight(1f)
+                        .imePadding(),
                     placeholder = { Text("댓글 작성하기") },
                     shape = RoundedCornerShape(15.dp),
                     textStyle = TextStyle(fontSize = 16.sp)
@@ -328,6 +342,8 @@ fun PostScreen(
                             }
 
                         }
+
+
 
 
                 }) {
@@ -399,6 +415,7 @@ fun PostScreen(
             onDismiss = { showLogInDialog = false}, dialogText = "로그인 후 이용이 가능합니다. 로그인하시겠습니까?" )
     }
 
+
 }
 
 
@@ -449,16 +466,17 @@ fun commentLayout(
                                 onDismissRequest = { menuExpanded.value = false }
 
                             ) {
-                                DropdownMenuItem(onClick = {
-                                    menuExpanded.value = false
-                                }
-                                ) {
-                                    Text("수정하기")
-                                }
+//                                DropdownMenuItem(onClick = {
+//                                    menuExpanded.value = false
+//                                }
+//                                ) {
+//                                    Text("수정하기")
+//                                }
 
                                 DropdownMenuItem(onClick = {
                                     menuExpanded.value = false
                                     onShowDialog(index)
+
                                 }
                                 ) {
                                     Text("삭제하기")

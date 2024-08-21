@@ -113,7 +113,8 @@ fun WriteSubjectScreen(
             value = agreeText,
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = selectedColor,
-                unfocusedBorderColor = Color.Gray
+                unfocusedBorderColor = Color.Gray,
+                cursorColor = selectedColor
             ),
             textStyle = TextStyle(fontSize = 20.sp),
             onValueChange = { newText -> agreeText = newText },
@@ -132,7 +133,8 @@ fun WriteSubjectScreen(
             value = disagreeText,
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = selectedColor,
-                unfocusedBorderColor = Color.Gray
+                unfocusedBorderColor = Color.Gray,
+                cursorColor = selectedColor
             ),
             textStyle = TextStyle(fontSize = 20.sp),
             onValueChange = { newText -> disagreeText = newText },

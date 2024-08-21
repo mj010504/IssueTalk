@@ -1,5 +1,6 @@
 package com.example.kinddiscussion.Home
 
+import PostViewModel
 import android.graphics.Paint.Align
 import android.util.Log
 import androidx.activity.compose.BackHandler
@@ -46,7 +47,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.kinddiscussion.Firebase.Post
 import com.example.kinddiscussion.Firebase.Subject
-import com.example.kinddiscussion.Home.viewModel.PostViewModel
 import com.example.kinddiscussion.Home.viewModel.SubjectViewModel
 
 import com.example.kinddiscussion.R
@@ -55,16 +55,16 @@ import com.example.kinddiscussion.blackLine2
 import com.example.kinddiscussion.checkCancleDialog
 import com.example.kinddiscussion.checkDialog
 import com.example.kinddiscussion.fieldToImage
-import com.example.kinddiscussion.grayLine
+
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+
 
 lateinit var threePosts : List<Post>
 
 @Composable
 fun SubjectScreen(
     navController : NavController,
-  subjectViewModel: SubjectViewModel = viewModel(),
+    subjectViewModel: SubjectViewModel = viewModel(),
     postViewModel: PostViewModel = viewModel()
 
 ) {
@@ -80,6 +80,7 @@ fun SubjectScreen(
 
     var choice by remember { mutableStateOf("") }
     choice = subjectViewModel.choice.value
+
 
 
     val auth = FirebaseAuth.getInstance()
@@ -187,7 +188,6 @@ fun SubjectScreen(
 
             Text(subject.agreeText,
                 style = TextStyle(fontSize = 12.sp), modifier = Modifier.padding(start = 10.dp),
-                color = Color.Gray
             )
         }
 
@@ -202,7 +202,6 @@ fun SubjectScreen(
 
             Text(subject.disagreeText,
                 style = TextStyle(fontSize = 12.sp), modifier = Modifier.padding(start = 10.dp),
-                color = Color.Gray
             )
         }
 
@@ -359,7 +358,7 @@ fun SubjectScreen(
 fun postPreviewLayout(
     navController: NavController,
     index : Int,
-    subjectViewModel: SubjectViewModel,postViewModel: PostViewModel
+    subjectViewModel: SubjectViewModel, postViewModel: PostViewModel
 ) {
     val post = threePosts[index]
 

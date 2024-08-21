@@ -1,5 +1,6 @@
 package com.example.kinddiscussion.Home
 
+import PostViewModel
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -41,7 +42,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.kinddiscussion.Firebase.Post
 import com.example.kinddiscussion.Firebase.Subject
 import com.example.kinddiscussion.Home.viewModel.CommentViewModel
-import com.example.kinddiscussion.Home.viewModel.PostViewModel
 import com.example.kinddiscussion.Home.viewModel.SubjectViewModel
 
 import com.example.kinddiscussion.R

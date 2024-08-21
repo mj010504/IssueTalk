@@ -23,13 +23,13 @@ data class Subject(
 data class Post(
     val subjectId : String = "",
     val userId : String = "",
-    val title : String = "",
+    var title : String = "",
     val field : String = "",
     var likeCount : Int = 0,
     var commentCount: Int = 0,
     val userName: String = "",
     val date : String = "",
-    val content : String = "",
+    var content : String = "",
     val timestamp: Timestamp = Timestamp.now()
 )
 
