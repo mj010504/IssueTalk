@@ -43,3 +43,7 @@ data class Comment(
     val timestamp: Timestamp = Timestamp.now()
 )
 
+data class Choice(
+    val choice : String = ""
+)
+

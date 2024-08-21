@@ -7,12 +7,14 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kinddiscussion.Firebase.Choice
 import com.example.kinddiscussion.Firebase.Comment
 import com.example.kinddiscussion.Firebase.Post
 import com.example.kinddiscussion.Firebase.Subject
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -33,6 +35,8 @@ class SubjectViewModel : ViewModel() {
     private val _subjectId: MutableState<String> = mutableStateOf("")
     val subject: State<Subject> get() = _subject
     val subjectId: State<String> get() = _subjectId
+    private val _choice  = mutableStateOf("")
+    val choice : State<String> get() =_choice
 
     init {
         fetchSubjects()
@@ -132,6 +136,96 @@ class SubjectViewModel : ViewModel() {
 
 
     }
+
+    fun isVotedByUser(userId : String) {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val postRef = db.collection("subject")
+                .document(subjectId.value)
+
+            val likeRef = postRef.collection("like").document(userId)
+
+            likeRef.get().addOnSuccessListener { result ->
+                if(result.exists()) {
+                    val choiceText = result.toObject(Choice::class.java)
+                    if(choiceText != null) _choice.value = choiceText.choice
+                }
+            }
+
+        }
+
+
+    }
+   fun setUserVote(userId : String, type : String) {
+       viewModelScope.launch(Dispatchers.IO) {
+           val subjectRef = db.collection("subject")
+               .document(subjectId.value)
+
+           val choiceRef = subjectRef.collection("choice").document(userId)
+
+           choiceRef.get().addOnSuccessListener { document ->
+               if(!document.exists()) {
+                    choiceRef.set(Choice(type))
+
+                   if(type == "agree") {
+                       _subject.value.agreeCount += 1
+                       _choice.value = "agree"
+                       subjectRef.update("agreeCount", FieldValue.increment(1))
+                   }
+                   else if(type == "disagree") {
+                       _subject.value.disagreeCount += 1
+                       _choice.value = "disagree"
+                       subjectRef.update("disagreeCount", FieldValue.increment(1))
+                   }
+                   else {
+                       _subject.value.neutralCount += 1
+                       _choice.value = "neutral"
+                       subjectRef.update("neutralCount", FieldValue.increment(1))
+                   }
+               }
+               else {
+                   val userChoice = document.toObject(Choice::class.java)!!.choice
+                   if(userChoice == type) {
+                       _choice.value = ""
+                       choiceRef.delete()
+                       subjectRef.update(type + "Count", FieldValue.increment(-1))
+                       when(type) {
+                           "agree" -> _subject.value.agreeCount -= 1
+                           "disagree" -> _subject.value.disagreeCount -= 1
+                           else -> _subject.value.neutralCount -= 1
+                       }
+
+
+
+                   }
+                   else {
+                       _choice.value = type
+                       subjectRef.update(userChoice + "Count", FieldValue.increment(1))
+                       subjectRef.update(type + "Count", FieldValue.increment(1))
+                       choiceRef.update("choice", type)
+
+                       when(userChoice) {
+                           "agree" -> _subject.value.agreeCount -= 1
+                           "disagree" -> subject.value.disagreeCount -= 1
+                           else -> _subject.value.neutralCount -= 1
+                       }
+
+                       when(type) {
+                           "agree" -> _subject.value.agreeCount += 1
+                           "disagree" -> _subject.value.disagreeCount += 1
+                            else -> _subject.value.neutralCount += 1
+                       }
+
+
+                   }
+
+
+               }
+           }
+
+       }
+
+   }
 }
 
 class PostViewModel : ViewModel() {

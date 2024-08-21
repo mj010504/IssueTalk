@@ -78,6 +78,10 @@ fun SubjectScreen(
     var showDialog by remember { mutableStateOf(false) }
     var dialogText by remember { mutableStateOf("") }
 
+    var choice by remember { mutableStateOf("") }
+    choice = subjectViewModel.choice.value
+
+
     val auth = FirebaseAuth.getInstance()
     val user = auth.currentUser
 
@@ -215,7 +219,7 @@ fun SubjectScreen(
                         showLogInDialog = true
                     }
                     else {
-
+                        subjectViewModel.setUserVote(user.uid, "agree")
                     }
                 }) {
                     Icon(
@@ -223,11 +227,12 @@ fun SubjectScreen(
                         modifier = Modifier
                             .width(60.dp)
                             .height(60.dp),
-                        tint = Color.Unspecified
+                        tint = if(choice == "agree") Color.Black else Color.Gray
                     )
                 }
 
-                Text(subject.agreeCount.toString(), style = TextStyle(fontSize = 25.sp, fontWeight = Bold))
+                Text(subject.agreeCount.toString(), style = TextStyle(fontSize = 25.sp, fontWeight = Bold)
+                    ,color = if(choice == "agree") Color.Black else Color.Gray)
 
 
             }
@@ -240,18 +245,20 @@ fun SubjectScreen(
                         showLogInDialog = true
                     }
                     else {
-
+                        subjectViewModel.setUserVote(user.uid, "neutral")
                     }
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.scale), contentDescription = null,
                         modifier = Modifier
                             .width(60.dp)
-                            .height(60.dp)
+                            .height(60.dp),
+                        tint = if(choice == "neutral") Color.Black else Color.Gray
                     )
                 }
 
-                Text(subject.neutralCount.toString(), style = TextStyle(fontSize = 25.sp, fontWeight = Bold))
+                Text(subject.neutralCount.toString(), style = TextStyle(fontSize = 25.sp, fontWeight = Bold)
+                ,color = if(choice == "neutral") Color.Black else Color.Gray)
 
 
             }
@@ -265,18 +272,20 @@ fun SubjectScreen(
                         showLogInDialog = true
                     }
                     else {
-
+                        subjectViewModel.setUserVote(user.uid, "disagree")
                     }
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.disagree), contentDescription = null,
                         modifier = Modifier
                             .width(60.dp)
-                            .height(60.dp)
+                            .height(60.dp),
+                        tint = if(choice == "disagree") Color.Black else Color.Gray
                     )
                 }
 
-                Text(subject.disagreeCount.toString(), style = TextStyle(fontSize = 25.sp, fontWeight = Bold))
+                Text(subject.disagreeCount.toString(), style = TextStyle(fontSize = 25.sp, fontWeight = Bold)
+                    ,color = if(choice == "disagree") Color.Black else Color.Gray)
 
 
             }

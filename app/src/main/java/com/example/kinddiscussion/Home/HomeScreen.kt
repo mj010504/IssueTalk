@@ -80,6 +80,7 @@ fun HomeScreen(
     var showLogInDialog by remember { mutableStateOf(false) }
 
 
+
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -177,8 +178,12 @@ fun subjectLayout(
     Box(
             modifier = Modifier
                 .clickable {
+                    val auth = FirebaseAuth.getInstance()
+                    val user = auth.currentUser
+
                     subjectViewModel.setSubject(subject, subjectId)
                     subjectViewModel.fetchLatestThreePosts()
+                    if(user != null) subjectViewModel.isVotedByUser(user.uid)
                     navCotnroller.navigate("subject")
                 }
                 .wrapContentSize()
