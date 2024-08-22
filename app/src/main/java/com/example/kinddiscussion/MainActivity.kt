@@ -1,6 +1,7 @@
 package com.example.kinddiscussion
 
 import PostViewModel
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -50,6 +51,7 @@ import com.example.kinddiscussion.Home.SubjectScreen
 import com.example.kinddiscussion.Home.WritePostScreen
 import com.example.kinddiscussion.Home.WriteSubjectScreen
 import com.example.kinddiscussion.Home.viewModel.CommentViewModel
+import com.example.kinddiscussion.Home.viewModel.SearchViewModel
 import com.example.kinddiscussion.Home.viewModel.SubjectViewModel
 import com.example.kinddiscussion.Menu.MenuScreen
 import com.example.kinddiscussion.Search.SearchScreen
@@ -71,6 +73,7 @@ class MainActivity : ComponentActivity() {
     private val subjectViewModel by viewModels<SubjectViewModel>()
     private val postViewModel by viewModels<PostViewModel>()
     private val commentViewModel by viewModels<CommentViewModel>()
+    private val searchViewModel by viewModels<SearchViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +88,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background,
                     ) {
-                        navigation(subjectViewModel, postViewModel, commentViewModel)
+                        navigation(subjectViewModel, postViewModel, commentViewModel, searchViewModel, this)
                     }
 
             }
@@ -100,7 +103,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun navigation(
-    subjectViewModel: SubjectViewModel, postViewModel: PostViewModel, commentViewModel: CommentViewModel
+    subjectViewModel: SubjectViewModel, postViewModel: PostViewModel, commentViewModel: CommentViewModel,
+    searchViewModel: SearchViewModel, context : Context
 ) {
 
     val navController = rememberNavController()
@@ -121,7 +125,7 @@ fun navigation(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("home") { HomeScreen(navController, subjectViewModel) }
-            composable("search") { SearchScreen(navController) }
+            composable("search") { SearchScreen(navController, searchViewModel, subjectViewModel, context) }
             composable("menu") { MenuScreen(navController) }
             composable("writeSubject") {
                 WriteSubjectScreen(navController, subjectViewModel)

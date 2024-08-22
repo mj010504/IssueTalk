@@ -45,7 +45,6 @@ import com.example.kinddiscussion.Home.viewModel.CommentViewModel
 import com.example.kinddiscussion.Home.viewModel.SubjectViewModel
 
 import com.example.kinddiscussion.R
-import com.example.kinddiscussion.Search.recentSearch
 import com.example.kinddiscussion.checkCancleDialog
 import com.example.kinddiscussion.fieldToImage
 import com.example.kinddiscussion.grayLine

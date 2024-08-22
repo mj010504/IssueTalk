@@ -39,6 +39,9 @@ class SubjectViewModel : ViewModel() {
     private val _choice  = mutableStateOf("")
     val choice : State<String> get() =_choice
 
+    private val _tab = mutableStateOf("전체")
+    val tab : State<String> get() = _tab
+
     init {
         fetchSubjects()
     }
@@ -78,7 +81,7 @@ class SubjectViewModel : ViewModel() {
 
                 val result = query.get().await()
 
-
+                _tab.value = field
                 _subjectList.clear()
                 _subjectIdList.clear()
 
@@ -126,10 +129,12 @@ class SubjectViewModel : ViewModel() {
                     .add(subject)
                     .await()
 
-                val subjectId = docRef.id
+                if(subject.subjectField == tab.value) {
+                    val subjectId = docRef.id
+                    _subjectList.add(0, subject)
+                    _subjectIdList.add(0, subjectId)
+                }
 
-                _subjectList.add(0, subject)
-                _subjectIdList.add(0, subjectId)
             }
 
             return true

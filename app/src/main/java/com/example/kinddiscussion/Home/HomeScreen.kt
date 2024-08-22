@@ -113,8 +113,6 @@ fun HomeScreen(
 
         LazyColumn(
 
-            modifier = Modifier
-
         ) {
             items(subjectList.size) { index ->
                     subjectLayout(navCotnroller,index, subjectViewModel)

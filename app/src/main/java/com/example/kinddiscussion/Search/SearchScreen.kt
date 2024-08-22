@@ -1,7 +1,11 @@
 package com.example.kinddiscussion.Search
 
+import android.content.Context
+import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,7 +15,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,16 +28,22 @@ import androidx.compose.material.TextButton
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,17 +51,52 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.kinddiscussion.Firebase.Subject
 import com.example.kinddiscussion.Home.WriteSubjectScreen
+import com.example.kinddiscussion.Home.subjectIdList
+import com.example.kinddiscussion.Home.subjectLayout
+import com.example.kinddiscussion.Home.subjectList
+import com.example.kinddiscussion.Home.viewModel.SearchViewModel
+import com.example.kinddiscussion.Home.viewModel.SubjectViewModel
 import com.example.kinddiscussion.R
+import com.example.kinddiscussion.blackLine
+import com.example.kinddiscussion.checkDialog
+import com.example.kinddiscussion.fieldToImage
 import com.example.kinddiscussion.grayLine
+import com.example.kinddiscussion.ui.theme.searchFieldColor
+import com.example.kinddiscussion.ui.theme.selectedColor
+import com.google.android.play.integrity.internal.c
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
-
+lateinit var searchList : List<Subject>
+lateinit var searchIdList : List<String>
 @Composable
 fun SearchScreen(
-    navController : NavController
+    navController : NavController,
+    searchViewModel: SearchViewModel,
+    subjectViewModel: SubjectViewModel,
+    context: Context
+
 ) {
 
+    var isSearched by remember { mutableStateOf(false) }
     var searchText by rememberSaveable { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+    var dialogText by remember { mutableStateOf("") }
+
+    val keywordArray by getKeywordArray(context).collectAsState(initial = emptyList())
+    val autoStore by getAutoStore(context).collectAsState(initial = true)
+    val scope = rememberCoroutineScope()
+
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    searchList = searchViewModel.searchList
+    searchIdList = searchViewModel.searchIdList
+
+
+
 
     BackHandler {
         navController.popBackStack()
@@ -59,7 +106,9 @@ fun SearchScreen(
     ) {
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 15.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = { navController.popBackStack() }) {
@@ -75,6 +124,13 @@ fun SearchScreen(
                     .weight(1f)
                     .padding(top = 10.dp, bottom = 10.dp),
                 value = searchText,
+                leadingIcon = {
+                    Icon(painter = painterResource(id = R.drawable.search),
+                        contentDescription = null, modifier = Modifier
+                            .width(25.dp)
+                            .height(25.dp))
+                },
+                maxLines = 1,
                 onValueChange = { newText -> searchText = newText },
                 placeholder = {
                     Text(
@@ -82,10 +138,12 @@ fun SearchScreen(
                         style = TextStyle(fontSize = 20.sp)
                     )
                 }, colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color.White,
+                    backgroundColor = searchFieldColor,
                     unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent
+                    focusedIndicatorColor = Color.Transparent,
+                    cursorColor = selectedColor
                 ),
+                shape = RoundedCornerShape(20.dp),
                 textStyle = TextStyle(fontSize = 20.sp),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -93,73 +151,225 @@ fun SearchScreen(
                 ),
                 keyboardActions = KeyboardActions(
                     onSearch = {
+                        isSearched = true
+                        if(searchText != "")  {
+                            searchViewModel.search(searchText)
+                            focusManager.clearFocus()
+                            keyboardController?.hide()
+                            if(autoStore) scope.launch { saveKeyword(context, searchText)}
+
+                        }
+                        else {
+                            showDialog = true
+                            dialogText = "검색어를 입력해주세요!"
+                        }
 
                     })
             )
 
 
 
-            IconButton(onClick = { }) {
-                Icon(painter = painterResource(id = R.drawable.search_ic), contentDescription = null,
-                    modifier = Modifier.width(25.dp).height(25.dp))
-            }
         }
 
 
+
+    if(!isSearched) {
         Text(
             text = "최근 검색어",
             color = Color.Gray,
             modifier = Modifier.padding(start = 10.dp)
         )
-        Spacer(modifier = Modifier.height(25.dp))
-        // 최근 검색어 Lazy layout
-        val searches = List(100) { "최근 검색어 #$it" }
+        Spacer(modifier = Modifier.height(20.dp))
 
+        if (autoStore) {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(15.dp),
+                modifier = Modifier.padding(start = 12.dp, end = 12.dp)
 
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(15.dp),
-            modifier = Modifier.padding(start = 12.dp, end = 12.dp)
+            ) {
+                items(keywordArray.size) { index ->
+                    TextButton(onClick = {
+                        isSearched = true
+                        searchViewModel.search(keywordArray[index])
+                    }) {
+                        Text(
+                            text = keywordArray[index], color = Color.Black, modifier = Modifier.padding(start = 8.dp, bottom = 5.dp ),
+                            style = TextStyle(fontSize = 16.sp))
+                    }
+                    grayLine()
 
-        ) {
-            items(10) { index ->
-                recentSearch(searchWord = searches[index])
-
+                }
             }
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    "검색어 자동저장 기능이 꺼져있습니다.", color = Color.Gray,
+                    style = TextStyle(fontSize = 18.sp)
+                )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
         }
+
+
+
 
         Row(
             modifier = Modifier.padding(start = 15.dp)
         ) {
-            TextButton(onClick = {}) {
+            TextButton(onClick = {
+                scope.launch { clearKeywords(context) }
+            }) {
                 Text(text = "전체 삭제", color = Color.Gray, style = TextStyle(fontSize = 12.sp))
             }
 
-            TextButton(onClick = {}) {
-                Text(text = "자동저장 끄기", color = Color.Gray, style = TextStyle(fontSize = 12.sp))
+            TextButton(onClick = {
+                scope.launch {
+                    saveAutoStore(context, !autoStore)
+                }
+            }) {
+                Text(
+                    text = if (autoStore) "자동저장 끄기" else "자동저장 켜기",
+                    color = Color.Gray, style = TextStyle(fontSize = 12.sp)
+                )
+
             }
 
         }
+    } else {
+        blackLine()
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(start = 12.dp, end = 12.dp)
 
+        ) {
+            items(searchList.size) { index ->
+                searchLayout(navController, index, subjectViewModel )
+            }
+        }
+
+        }
+
+
+    }
+
+
+    if(showDialog) {
+        checkDialog(onDismiss = { showDialog = false }, dialogText = dialogText)
     }
 }
 
 
-
-
 @Composable
-fun recentSearch(
-    searchWord : String
+fun searchLayout(
+    navCotnroller: NavController,
+    index : Int,
+    subjectViewModel: SubjectViewModel
 ) {
-    Text(
-        text = searchWord, color = Color.Black, modifier = Modifier.padding(start = 8.dp, bottom = 5.dp ),
-        style = TextStyle(fontSize = 16.sp))
-    grayLine()
+
+    val subject = searchList[index]
+    val subjectId = searchIdList[index]
+
+    Box(
+        modifier = Modifier
+            .clickable {
+                val auth = FirebaseAuth.getInstance()
+                val user = auth.currentUser
+
+                subjectViewModel.setSubject(subject, subjectId)
+                subjectViewModel.fetchLatestThreePosts()
+                if (user != null) subjectViewModel.isVotedByUser(user.uid)
+                navCotnroller.navigate("subject")
+            }
+            .wrapContentSize()
+    ) {
+        Row() {
+            val fieldImage = fieldToImage(subject.subjectField)
+            Icon(
+                painter = painterResource(id = fieldImage), contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier
+                    .padding(start = 6.dp)
+                    .width(30.dp)
+                    .height(30.dp)
+            )
+
+            Text(
+                subject.title,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 18.dp, end = 15.dp),
+                maxLines = 1
+            )
+
+        }
+    }
+
+
+    Box(
+        modifier = Modifier
+            .clickable {
+                subjectViewModel.setSubject(subject, subjectId)
+                subjectViewModel.fetchLatestThreePosts()
+                navCotnroller.navigate("subject")
+            }
+            .wrapContentSize()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        )
+        {
+            Text(subject.subjectField, modifier = Modifier.padding(start = 6.dp, top = 3.dp)
+                ,style  =TextStyle(fontWeight = FontWeight.Bold)
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.agree), contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 18.dp)
+                    .width(20.dp)
+                    .height(20.dp)
+
+            )
+
+            Text(subject.agreeCount.toString(), modifier = Modifier.padding(top = 5.dp, start = 4.dp))
+            Icon(
+                painter = painterResource(id = R.drawable.disagree), contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .width(20.dp)
+                    .height(20.dp)
+
+            )
+
+            Text(subject.disagreeCount.toString(), modifier = Modifier.padding(top = 5.dp, start = 4.dp))
+
+            Icon(
+                painter = painterResource(id = R.drawable.scale), contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .width(20.dp)
+                    .height(20.dp)
+
+            )
+
+            Text(subject.neutralCount.toString(), modifier = Modifier.padding(top = 5.dp, start = 4.dp))
+
+            Text(
+                subject.date,
+                modifier = Modifier.padding(top = 5.dp, start = 11.dp),
+                color = Color.Gray,
+                style = TextStyle(fontSize = 12.sp)
+            )
+
+
+        }
+    }
+
+    blackLine()
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewTextFsieldExample() {
-    val navController = rememberNavController()
-    SearchScreen(navController)
-}
+
+
