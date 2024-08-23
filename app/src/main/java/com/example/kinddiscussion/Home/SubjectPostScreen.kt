@@ -19,10 +19,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,12 +54,13 @@ import com.example.kinddiscussion.fieldToImage
 import com.example.kinddiscussion.grayLine
 import com.example.kinddiscussion.ui.theme.selectedColor
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
 import java.time.format.TextStyle
 
 lateinit var postList : List<Post>
 lateinit var postIdList : List<String>
 
-
+@ExperimentalMaterialApi
 @Composable
 fun SubjectPostScreen(
     navController : NavController,
@@ -68,6 +73,14 @@ fun SubjectPostScreen(
     val subjectTitle = subjectViewModel.subject.value.title
     var showLogInDialog by remember { mutableStateOf(false) }
 
+    var isRefreshing by remember { mutableStateOf(false) }
+    val pullRefreshState = rememberPullRefreshState(isRefreshing, {
+        isRefreshing = true
+        postViewModel.fetchPosts(subjectViewModel.subjectId.value)
+        isRefreshing = false
+    })
+
+
     postList = postViewModel.postList
     postIdList = postViewModel.postIdList
 
@@ -75,61 +88,76 @@ fun SubjectPostScreen(
         navController.popBackStack()
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
+
+    Box(
+        modifier = Modifier.pullRefresh(pullRefreshState).fillMaxSize()
     ) {
-        IconButton(onClick = { navController.popBackStack() }) {
-            Icon(
-                painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
-                modifier = Modifier
-                    .padding(start = 6.dp)
-                    .width(35.dp)
-                    .height(35.dp)
-            )
-        }
-        
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Icon(
-
-                painter = painterResource(id = fieldImage), contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier
-                    .padding(start = 10.dp)
-                    .width(45.dp)
-                    .height(45.dp)
-            )
-
-            Text(
-                text = subjectTitle,
-                style = androidx.compose.ui.text.TextStyle(fontSize = 24.sp),
-                modifier = Modifier.padding(start = 20.dp),
-
-            )
-        }
-
-        Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-            writePostButton(navController, {showLogInDialog = true})
-        }
-
-        Spacer(modifier = Modifier.padding(top = 10.dp))
-        grayLine()
-
-        Spacer(modifier = Modifier.height(10.dp))
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier
-
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
+            item {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
+                        modifier = Modifier
+                            .padding(start = 6.dp)
+                            .width(35.dp)
+                            .height(35.dp)
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+
+                        painter = painterResource(id = fieldImage), contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .padding(start = 10.dp)
+                            .width(45.dp)
+                            .height(45.dp)
+                    )
+
+                    Text(
+                        text = subjectTitle,
+                        style = androidx.compose.ui.text.TextStyle(fontSize = 24.sp),
+                        modifier = Modifier.padding(start = 20.dp),
+
+                        )
+                }
+
+                Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                    writePostButton(navController, { showLogInDialog = true })
+                }
+
+                Spacer(modifier = Modifier.padding(top = 10.dp))
+                grayLine()
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+
+
             items(postList.size) { index ->
                 postLayout(navController, index, postViewModel, commentViewModel)
 
             }
+
         }
 
+
+        PullRefreshIndicator(
+                refreshing = isRefreshing,
+        state = pullRefreshState,
+        contentColor = Color.Black,
+        modifier = Modifier.align(Alignment.TopCenter)
+        )
+
+
     }
+
+
+
 
     if(showLogInDialog) {
         checkCancleDialog(onCheck = { navController.navigate("login") },
@@ -182,7 +210,7 @@ fun postLayout (
 
                 val auth = FirebaseAuth.getInstance()
                 val user = auth.currentUser
-                if(user != null) {
+                if (user != null) {
                     postViewModel.isPostLikedByUser(user.uid)
                 }
 
@@ -279,9 +307,3 @@ fun postLayout (
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewTsdssextFieldExample() {
-    val navController = rememberNavController()
-    SubjectPostScreen(navController)
-}

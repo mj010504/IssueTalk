@@ -22,11 +22,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,6 +82,7 @@ fun SubjectScreen(
 
     var choice by remember { mutableStateOf("") }
     choice = subjectViewModel.choice.value
+
 
 
 
@@ -445,14 +448,6 @@ fun postPreviewLayout(
 
 
 }
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewTextFieldssddExample() {
-    val navController = rememberNavController()
-    SubjectScreen(navController)
-}
-
 
 
 

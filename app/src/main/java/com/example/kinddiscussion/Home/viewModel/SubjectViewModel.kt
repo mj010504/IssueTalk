@@ -46,7 +46,7 @@ class SubjectViewModel : ViewModel() {
         fetchSubjects()
     }
 
-    private fun fetchSubjects() {
+    fun fetchSubjects() {
         viewModelScope.launch(Dispatchers.IO) {
             val result = db.collection("subject")
                 .orderBy("timestamp", Query.Direction.DESCENDING)

@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -88,6 +90,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background,
                     ) {
+
                         navigation(subjectViewModel, postViewModel, commentViewModel, searchViewModel, this)
                     }
 
@@ -99,8 +102,7 @@ class MainActivity : ComponentActivity() {
 }
 
 
-
-
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun navigation(
     subjectViewModel: SubjectViewModel, postViewModel: PostViewModel, commentViewModel: CommentViewModel,
@@ -173,8 +175,8 @@ fun grayLine(
     modifier : Modifier = Modifier
 )  {
     Divider(
-        color = Color.Gray,
-        thickness = 0.7.dp,
+        color = Color.LightGray,
+        thickness = 0.55.dp,
         modifier = modifier
 
     )

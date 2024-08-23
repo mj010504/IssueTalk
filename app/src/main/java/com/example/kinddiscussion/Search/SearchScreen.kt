@@ -65,6 +65,7 @@ import com.example.kinddiscussion.fieldToImage
 import com.example.kinddiscussion.grayLine
 import com.example.kinddiscussion.ui.theme.searchFieldColor
 import com.example.kinddiscussion.ui.theme.selectedColor
+import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.android.play.integrity.internal.c
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -97,13 +98,14 @@ fun SearchScreen(
 
 
 
-
+    
     BackHandler {
         navController.popBackStack()
     }
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+
 
         Row(
             modifier = Modifier
@@ -194,7 +196,7 @@ fun SearchScreen(
                     }) {
                         Text(
                             text = keywordArray[index], color = Color.Black, modifier = Modifier.padding(start = 8.dp, bottom = 5.dp ),
-                            style = TextStyle(fontSize = 16.sp))
+                         )
                     }
                     grayLine()
 
@@ -202,7 +204,9 @@ fun SearchScreen(
             }
         } else {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, end = 10.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(

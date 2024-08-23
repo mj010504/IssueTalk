@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+
+
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 
@@ -25,11 +27,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -74,6 +80,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 lateinit var commentList : List<Comment>
 lateinit var commentIdList : List<String>
 
+@ExperimentalMaterialApi
 @Composable
 fun PostScreen(
     navController : NavController,
@@ -83,9 +90,18 @@ fun PostScreen(
 
     val auth = FirebaseAuth.getInstance()
     val user = auth.currentUser
+    val post by postViewModel.post
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
 
     commentList = commentViewModel.commentList
     commentIdList = commentViewModel.commentIdList
+
+    var isPostDropDownMenuExpanded by remember { mutableStateOf(false) }
+    var isCommentDropDownMenuExpanded = remember { mutableStateOf(false) }
+    var showPostDeleteDialog by remember { mutableStateOf(false) }
+    var showCommentDeleteDialog by remember { mutableStateOf(false) }
+    var selectedIndex = remember { mutableStateOf(-1) }
 
     var commentText by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
@@ -94,277 +110,279 @@ fun PostScreen(
     var showLogInDialog by remember { mutableStateOf(false) }
     var commentDeleteIndex by remember { mutableStateOf(0) }
     var isLiked by remember { mutableStateOf(false) }
-
-
+    var isRefreshing by remember { mutableStateOf(false) }
+    val pullRefreshState = rememberPullRefreshState(isRefreshing, {
+        isRefreshing = true
+        commentViewModel.fetchComments(post.subjectId, postViewModel.postId.value)
+        isRefreshing = false
+    })
 
     isLiked = postViewModel.isLiked.value
-
-
-    sendButtonColor=  if(commentText == "") Color.Gray else selectedColor
-
+    val commentCount = post.commentCount.toString()
+    sendButtonColor = if(commentText == "") Color.Gray else selectedColor
 
     BackHandler {
         navController.popBackStack()
     }
 
-    val post by postViewModel.post
 
-    var isPostDropDownMenuExpanded by remember { mutableStateOf(false) }
-    var isCommentDropDownMenuExpanded = remember { mutableStateOf(false) }
-    var showPostDeleteDialog by remember { mutableStateOf(false) }
-    var showCommentDeleteDialog by remember { mutableStateOf(false) }
-    var selectedIndex = remember { mutableStateOf(-1) }
-    val commentCount = post.commentCount.toString()
 
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-
-        IconButton(onClick = { navController.popBackStack() }) {
-            Icon(
-                painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
-                modifier = Modifier
-                    .padding(start = 6.dp)
-                    .width(35.dp)
-                    .height(35.dp)
-
-            )
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = 5.dp), horizontalArrangement = Arrangement.End
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(20.dp)
-                    .height(20.dp)
+        Box(
+                modifier = Modifier.pullRefresh(pullRefreshState).fillMaxSize()
             ) {
-
-                if(user != null && user.uid == post.userId)  {
-                    Box() {
-                        IconButton(onClick = {
-                            isPostDropDownMenuExpanded = true
-                        }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.vertical_menu),
-                                contentDescription = null
-                            )
-                        }
-                }
-
-
-
-                    DropdownMenu(
-                        modifier = Modifier
-                            .wrapContentSize(),
-                        expanded = isPostDropDownMenuExpanded,
-                        onDismissRequest = { isPostDropDownMenuExpanded = false }
-
+                Column() {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f)
                     ) {
-                        DropdownMenuItem(onClick = {
-                            isPostDropDownMenuExpanded = false
-                            navController.navigate("editPost")
-                        }
-                        ) {
-                            Text("수정하기")
-                        }
+                        item {
+                            IconButton(onClick = { navController.popBackStack() }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
+                                    modifier = Modifier
+                                        .padding(start = 6.dp)
+                                        .width(35.dp)
+                                        .height(35.dp)
 
-                        DropdownMenuItem(onClick = {
-                            isPostDropDownMenuExpanded = false
-                            showPostDeleteDialog = true
-                        }
-                        ) {
-                            Text("삭제하기")
-
-                        }
-                    }
-                }
-
-            }
-
-        }
-
-
-
-        Text(
-            text = post.title,
-            style = TextStyle(fontSize = 20.sp),
-            modifier = Modifier
-                .padding(start = 20.dp, end = 35.dp)
-                .fillMaxWidth()
-        )
-        Spacer(Modifier.height(5.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(start = 20.dp)
-        ) {
-            Text(post.userName, color = Color.Black)
-            Spacer(Modifier.width(5.dp))
-            Text(post.date, color = Color.Gray)
-        }
-        Spacer(Modifier.height(8.dp))
-        grayLine()
-        Spacer(Modifier.height(15.dp))
-        Text(
-            text = post.content,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 15.dp, end = 15.dp),
-            style = TextStyle(fontSize = 17.sp)
-        )
-
-
-        Spacer(Modifier.height(15.dp))
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 10.dp)
-        ) {
-            IconButton(onClick = {
-                if(user != null) {
-                    postViewModel.likePost(user.uid)
-                }
-                else {
-                    showLogInDialog = true
-                }
-            }) {
-                Icon(
-                    painter = painterResource(id = if(isLiked) R.drawable.like_on else R.drawable.like_off), contentDescription = null,
-                    modifier = Modifier
-                        .padding(start = 6.dp)
-                        .width(30.dp)
-                        .height(30.dp),
-                    tint = if(isLiked) Color.Unspecified else Color.Gray
-
-                )
-            }
-            Spacer(Modifier.width(5.dp))
-            Text(post.likeCount.toString(), style = TextStyle(fontSize = 22.sp, color = if(isLiked) Color.Unspecified else Color.Gray))
-        }
-
-        Spacer(Modifier.height(10.dp))
-        grayLine()
-
-        Text("전체 댓글($commentCount)",
-            style = TextStyle(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(start = 15.dp, top = 15.dp)
-        )
-
-        Spacer(Modifier.height(8.dp))
-        grayLine()
-        Spacer(Modifier.height(5.dp))
-
-        LazyColumn(
-            modifier = Modifier.weight(1f)
-        ) {
-
-            items(commentList.size) { index ->
-                commentLayout(isCommentDropDownMenuExpanded,
-                    {
-                    showCommentDeleteDialog = true
-                    commentDeleteIndex = it },
-                    index, selectedIndex)
-
-            }
-        }
-        
-
-            
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .fillMaxWidth()
-                    .wrapContentSize()
-            ) {
-                OutlinedTextField(
-                    value = commentText,
-                    onValueChange = { newText -> commentText = newText },
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = selectedColor,
-                        unfocusedBorderColor = Color.Gray,
-                        cursorColor = Color.Black
-
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .imePadding(),
-                    placeholder = { Text("댓글 작성하기") },
-                    shape = RoundedCornerShape(15.dp),
-                    textStyle = TextStyle(fontSize = 16.sp)
-                )
-
-                IconButton(onClick = {
-
-                        val auth = FirebaseAuth.getInstance()
-                        val user = auth.currentUser
-
-
-
-                        if (commentText != "") {
-
-                            if (user == null) {
-                                showLogInDialog = true
-                            } else {
-                                val auth = FirebaseAuth.getInstance()
-                                val userId = auth.currentUser!!.uid
-                                val currentDate = getCurrentDateFormatted()
-                                val writeComment = Comment(
-
-                                    userId = userId,
-                                    postId = postViewModel.postId.value,
-                                    userName = auth.currentUser!!.displayName.toString(),
-                                    date = currentDate,
-                                    commentContent = commentText
                                 )
-
-                                val subjectId = postViewModel.post.value.subjectId
-                                val postId = postViewModel.postId.value
-
-                                val isSuccess =
-                                    commentViewModel.writeComment(subjectId, postId, writeComment)
-                                if (!isSuccess) {
-                                    showDialog = true
-                                    dialogText = "댓글 작성에 실패했습니다."
-                                } else {
-                                    commentText = ""
-                                    postViewModel.updateCommentCount()
-                                    keyboardController?.hide()
-                                    focusManager.clearFocus()
-                                }
                             }
 
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(end = 5.dp), horizontalArrangement = Arrangement.End
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(20.dp)
+                                        .height(20.dp)
+                                ) {
+
+                                    if(user != null && user.uid == post.userId)  {
+                                        Box() {
+                                            IconButton(onClick = {
+                                                isPostDropDownMenuExpanded = true
+                                            }) {
+                                                Icon(
+                                                    painter = painterResource(id = R.drawable.vertical_menu),
+                                                    contentDescription = null
+                                                )
+                                            }
+                                        }
+
+
+
+                                        DropdownMenu(
+                                            modifier = Modifier
+                                                .wrapContentSize(),
+                                            expanded = isPostDropDownMenuExpanded,
+                                            onDismissRequest = { isPostDropDownMenuExpanded = false }
+
+                                        ) {
+                                            DropdownMenuItem(onClick = {
+                                                isPostDropDownMenuExpanded = false
+                                                navController.navigate("editPost")
+                                            }
+                                            ) {
+                                                Text("수정하기")
+                                            }
+
+                                            DropdownMenuItem(onClick = {
+                                                isPostDropDownMenuExpanded = false
+                                                showPostDeleteDialog = true
+                                            }
+                                            ) {
+                                                Text("삭제하기")
+
+                                            }
+                                        }
+                                    }
+
+                                }
+
+                            }
+
+
+
+                            Text(
+                                text = post.title,
+                                style = TextStyle(fontSize = 20.sp),
+                                modifier = Modifier
+                                    .padding(start = 20.dp, end = 35.dp)
+                                    .fillMaxWidth()
+                            )
+                            Spacer(Modifier.height(5.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(start = 20.dp)
+                            ) {
+                                Text(post.userName, color = Color.Black)
+                                Spacer(Modifier.width(5.dp))
+                                Text(post.date, color = Color.Gray)
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            grayLine()
+                            Spacer(Modifier.height(15.dp))
+                            Text(
+                                text = post.content,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 15.dp, end = 15.dp),
+                                style = TextStyle(fontSize = 17.sp)
+                            )
+
+
+                            Spacer(Modifier.height(15.dp))
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 10.dp)
+                            ) {
+                                IconButton(onClick = {
+                                    if(user != null) {
+                                        postViewModel.likePost(user.uid)
+                                    }
+                                    else {
+                                        showLogInDialog = true
+                                    }
+                                }) {
+                                    Icon(
+                                        painter = painterResource(id = if(isLiked) R.drawable.like_on else R.drawable.like_off), contentDescription = null,
+                                        modifier = Modifier
+                                            .padding(start = 6.dp)
+                                            .width(30.dp)
+                                            .height(30.dp),
+                                        tint = if(isLiked) Color.Unspecified else Color.Gray
+
+                                    )
+                                }
+                                Spacer(Modifier.width(5.dp))
+                                Text(post.likeCount.toString(), style = TextStyle(fontSize = 22.sp, color = if(isLiked) Color.Unspecified else Color.Gray))
+                            }
+
+                            Spacer(Modifier.height(10.dp))
+                            grayLine()
+
+                            Text("전체 댓글($commentCount)",
+                                style = TextStyle(fontWeight = FontWeight.Bold),
+                                modifier = Modifier.padding(start = 15.dp, top = 15.dp)
+                            )
+
+                            Spacer(Modifier.height(8.dp))
+                            grayLine()
+                            Spacer(Modifier.height(5.dp))
                         }
 
 
+                        items(commentList.size) { index ->
+                            commentLayout(isCommentDropDownMenuExpanded,
+                                {
+                                    showCommentDeleteDialog = true
+                                    commentDeleteIndex = it },
+                                index, selectedIndex)
 
+                        }
 
-                }) {
+                    }
 
-                        Icon(
-                            painter = painterResource(id = R.drawable.send_ic), contentDescription = null,
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = 12.dp)
+                            .fillMaxWidth()
+
+                    ) {
+                        OutlinedTextField(
+                            value = commentText,
+                            onValueChange = { newText -> commentText = newText },
+                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                focusedBorderColor = selectedColor,
+                                unfocusedBorderColor = Color.Gray,
+                                cursorColor = Color.Black
+
+                            ),
                             modifier = Modifier
-                                .padding(start = 6.dp)
-                                .width(20.dp)
-                                .height(20.dp),
-                            tint = sendButtonColor
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .imePadding(),
+                            placeholder = { Text("댓글 작성하기") },
+                            shape = RoundedCornerShape(15.dp),
+                            textStyle = TextStyle(fontSize = 16.sp)
                         )
 
+                        IconButton(onClick = {
 
+                            val auth = FirebaseAuth.getInstance()
+                            val user = auth.currentUser
+
+
+                            if (commentText != "") {
+
+                                if (user == null) {
+                                    showLogInDialog = true
+                                } else {
+                                    val auth = FirebaseAuth.getInstance()
+                                    val userId = auth.currentUser!!.uid
+                                    val currentDate = getCurrentDateFormatted()
+                                    val writeComment = Comment(
+
+                                        userId = userId,
+                                        postId = postViewModel.postId.value,
+                                        userName = auth.currentUser!!.displayName.toString(),
+                                        date = currentDate,
+                                        commentContent = commentText
+                                    )
+
+                                    val subjectId = postViewModel.post.value.subjectId
+                                    val postId = postViewModel.postId.value
+
+                                    val isSuccess =
+                                        commentViewModel.writeComment(subjectId, postId, writeComment)
+                                    if (!isSuccess) {
+                                        showDialog = true
+                                        dialogText = "댓글 작성에 실패했습니다."
+                                    } else {
+                                        commentText = ""
+                                        postViewModel.updateCommentCount()
+                                        keyboardController?.hide()
+                                        focusManager.clearFocus()
+                                    }
+                                }
+
+                            }
+
+
+
+
+                        }) {
+
+                            Icon(
+                                painter = painterResource(id = R.drawable.send_ic), contentDescription = null,
+                                modifier = Modifier
+                                    .padding(start = 6.dp)
+                                    .width(20.dp)
+                                    .height(20.dp),
+                                tint = sendButtonColor
+                            )
+
+
+
+                        }
+
+                    }
 
                 }
 
+                PullRefreshIndicator(
+                    refreshing = isRefreshing,
+                    state = pullRefreshState,
+                    contentColor = Color.Black,
+                    modifier = Modifier.align(Alignment.TopCenter)
+                )
             }
 
 
-    }
 
     if(showCommentDeleteDialog) {
         checkCancleDialog(onCheck = {
@@ -425,6 +443,7 @@ fun commentLayout(
     index : Int, selectedIndex : MutableState<Int>
 ) {
     val comment = commentList[index]
+
     Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -495,11 +514,3 @@ fun commentLayout(
 
 }
 
-
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewTssdssextFieldExample() {
-    val navController = rememberNavController()
-    PostScreen(navController)
-}

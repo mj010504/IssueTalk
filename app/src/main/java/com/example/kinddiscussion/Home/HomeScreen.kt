@@ -17,11 +17,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -30,6 +34,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
@@ -63,7 +68,7 @@ import kotlinx.coroutines.tasks.await
 
     lateinit var subjectList : List<Subject>
     lateinit var subjectIdList : List<String>
-
+@ExperimentalMaterialApi
 @Composable
 fun HomeScreen(
     navCotnroller : NavController,
@@ -79,46 +84,57 @@ fun HomeScreen(
     var selectedTabIndex by remember {mutableStateOf(0)}
     var showLogInDialog by remember { mutableStateOf(false) }
 
+    var isRefreshing by remember { mutableStateOf(false) }
+    val pullRefreshState = rememberPullRefreshState(isRefreshing, {
+        isRefreshing = true
+        subjectViewModel.fetchSubjects()
+        isRefreshing = false
+    })
 
+    Box(
+            modifier = Modifier.pullRefresh(pullRefreshState).fillMaxSize()
+        ) {
 
-    Column (
-        modifier = Modifier
-            .fillMaxSize()
-            .navigationBarsPadding()
-    )
-    {
+            LazyColumn(
 
-        TabRow(
-            selectedTabIndex = selectedTabIndex,
-            backgroundColor = tabGreenColor,
-            contentColor = Color.White
-        ){
-            tabs.forEachIndexed {index, title ->
-                Tab(
-                    text = {Text(title, style = TextStyle(fontWeight = FontWeight.Bold))},
-                    selected = selectedTabIndex == index,
-                    onClick = {
-                        selectedTabIndex = index
-                        subjectViewModel.fetchSubjectByField(tabs[index])
+            ) {
+                item {
+                    TabRow(
+                        selectedTabIndex = selectedTabIndex,
+                        backgroundColor = tabGreenColor,
+                        contentColor = Color.White
+                    ){
+                        tabs.forEachIndexed {index, title ->
+                            Tab(
+                                text = {Text(title, style = TextStyle(fontWeight = FontWeight.Bold))},
+                                selected = selectedTabIndex == index,
+                                onClick = {
+                                    selectedTabIndex = index
+                                    subjectViewModel.fetchSubjectByField(tabs[index])
+                                }
+
+                            )
+                        }
                     }
 
-                )
-            }
-        }
-
-        writeSubjectButton(navCotnroller, onShowDialog = { showLogInDialog = true})
-        blackLine()
-
-
-
-        LazyColumn(
-
-        ) {
-            items(subjectList.size) { index ->
+                    writeSubjectButton(navCotnroller, onShowDialog = { showLogInDialog = true})
+                    blackLine()
+                }
+                items(subjectList.size) { index ->
                     subjectLayout(navCotnroller,index, subjectViewModel)
+                }
             }
+
+            PullRefreshIndicator(
+                refreshing = isRefreshing,
+                state = pullRefreshState,
+                contentColor = Color.Black,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
         }
-    }
+
+
+
 
     if(showLogInDialog) {
         checkCancleDialog(onCheck = { navCotnroller.navigate("login") },
@@ -274,11 +290,4 @@ fun subjectLayout(
     blackLine()
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewTextFielsddExample() {
-    val navController = rememberNavController()
-    HomeScreen(navController)
-}
 
