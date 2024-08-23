@@ -190,14 +190,30 @@ fun SearchScreen(
 
             ) {
                 items(keywordArray.size) { index ->
-                    TextButton(onClick = {
-                        isSearched = true
-                        searchViewModel.search(keywordArray[index])
-                    }) {
-                        Text(
-                            text = keywordArray[index], color = Color.Black, modifier = Modifier.padding(start = 8.dp, bottom = 5.dp ),
-                         )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 10.dp)
+                    ) {
+                        TextButton(onClick = {
+                            isSearched = true
+                            searchViewModel.search(keywordArray[index])
+                        }) {
+                            Text(
+                                text = keywordArray[index], color = Color.Black, 
+                                modifier = Modifier.padding(start = 8.dp, bottom = 5.dp ), maxLines = 1,
+                                style = TextStyle(fontSize = 16.sp)
+                            )
+                        }
+                        Spacer(Modifier.weight(1f))
+                        IconButton(onClick = {
+                            scope.launch { removeKeywords(context, keywordArray[index]) }
+                        }) {
+                            Icon(painter = painterResource(id = R.drawable.x_ic),
+                                contentDescription = null, tint = Color.Gray)
+                        }
                     }
+                    
                     grayLine()
 
                 }

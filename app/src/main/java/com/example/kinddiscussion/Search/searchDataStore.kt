@@ -18,15 +18,25 @@ val autoStoreKey = booleanPreferencesKey("autoStoreKey")
 suspend fun saveKeyword(context: Context, newString: String) {
     context.dataStore.edit { preferences ->
         val currentArray = preferences[keywordArrayKey]?.split(",")?.toMutableList() ?: mutableListOf()
+        currentArray.removeAll { it == newString }
         currentArray.removeAll { it.isBlank() }
         currentArray.add(0, newString)
         preferences[keywordArrayKey] = currentArray.joinToString(",")
     }
 }
 
+
 fun getKeywordArray(context: Context) = context.dataStore.data.map { preferences ->
     val savedString = preferences[keywordArrayKey] ?: ""
     if (savedString.isEmpty()) emptyList() else savedString.split(",")
+}
+
+suspend fun removeKeywords(context: Context, keyword : String) {
+    context.dataStore.edit { preferences ->
+        val currentArray = preferences[keywordArrayKey]?.split(",")?.toMutableList() ?: mutableListOf()
+        currentArray.removeAll { it == keyword }
+        preferences[keywordArrayKey] = currentArray.joinToString(",")
+    }
 }
 
 // 문자열 배열을 모두 삭제하는 함수
