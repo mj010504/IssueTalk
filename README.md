@@ -17,7 +17,12 @@
 
 <br><br>
 ![주제 화면](https://github.com/user-attachments/assets/d6f8da63-8104-4745-8d89-d187441f172b)
-![주제 - 게시글](https://github.com/user-attachments/assets/fe23773f-9a43-44ae-8a08-150e6dfedaaf)
+<br><br>
+![주제 - 게시글](https://github.com/user-attachments/assets/1e91352e-2acd-4a74-a848-f6664a8b674b)
+<br><br>
+![게시글](https://github.com/user-attachments/assets/6d708a17-5632-43be-a1d2-7b708e6f352c)
+
+
 
 
 <br><br><br>
