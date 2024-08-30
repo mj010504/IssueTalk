@@ -15,6 +15,11 @@
 4. **게시글 작성**: 주제에 대한 게시글을 작성
 5. **댓글 작성**: 게시글에 대한 댓글 작성 가능
 
+<br><br>
+![주제 화면](https://github.com/user-attachments/assets/d6f8da63-8104-4745-8d89-d187441f172b)
+![주제 - 게시글](https://github.com/user-attachments/assets/fe23773f-9a43-44ae-8a08-150e6dfedaaf)
+
+
 <br><br><br>
 
 ## 개발 환경
@@ -27,6 +32,7 @@
 <br><br><br>
 
 ## 피그마 링크
+![피그마](https://github.com/user-attachments/assets/0e5dc057-917f-4cd0-922c-e9b933a5d61e)
 
-https://www.figma.com/design/r3EabHOe6nGWaBUIrt1RH2/IssueTalk?node-id=0-1&node-type=CANVAS&t=8KBNuL5FtkZLp06E-0![Uploading search_ic.svg…]()
+https://www.figma.com/design/r3EabHOe6nGWaBUIrt1RH2/IssueTalk?node-id=0-1&node-type=CANVAS&t=8KBNuL5FtkZLp06E-0
 
