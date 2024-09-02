@@ -67,6 +67,5 @@ fun SplashScreen(navController: NavController) {
 @Composable
 fun PreviewTextFielsddExample() {
     val navController = rememberNavController()
-    val isUser = true
     SplashScreen(navController)
 }

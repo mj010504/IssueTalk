@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +60,8 @@ import com.example.kinddiscussion.checkDialog
 import com.example.kinddiscussion.fieldToImage
 
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 lateinit var threePosts : List<Post>
@@ -84,7 +87,8 @@ fun SubjectScreen(
     choice = subjectViewModel.choice.value
 
 
-
+    val coroutineScope = rememberCoroutineScope()
+    var isClickable by remember { mutableStateOf(true) }
 
     val auth = FirebaseAuth.getInstance()
     val user = auth.currentUser
@@ -97,7 +101,13 @@ fun SubjectScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         Row(modifier = Modifier.fillMaxWidth() ) {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(onClick = {
+                if(isClickable) {
+                    isClickable = false
+                    navController.popBackStack()
+                }
+
+            }) {
                 Icon(
                     painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
                     modifier = Modifier
@@ -221,7 +231,16 @@ fun SubjectScreen(
                         showLogInDialog = true
                     }
                     else {
-                        subjectViewModel.setUserVote(user.uid, "agree")
+                        if(isClickable) {
+                            isClickable = false
+                            subjectViewModel.setUserVote(user.uid, "agree")
+
+                            coroutineScope.launch {
+                                delay(300)
+                                isClickable = true
+                            }
+                        }
+
                     }
                 }) {
                     Icon(
@@ -247,7 +266,15 @@ fun SubjectScreen(
                         showLogInDialog = true
                     }
                     else {
-                        subjectViewModel.setUserVote(user.uid, "neutral")
+                        if(isClickable) {
+                            isClickable = false
+                            subjectViewModel.setUserVote(user.uid, "neutral")
+
+                            coroutineScope.launch {
+                                delay(300)
+                                isClickable = true
+                            }
+                        }
                     }
                 }) {
                     Icon(
@@ -274,7 +301,16 @@ fun SubjectScreen(
                         showLogInDialog = true
                     }
                     else {
-                        subjectViewModel.setUserVote(user.uid, "disagree")
+                        if(isClickable) {
+                            isClickable = false
+                            subjectViewModel.setUserVote(user.uid, "disagree")
+
+                            coroutineScope.launch {
+                                delay(300)
+                                isClickable = true
+                            }
+                        }
+
                     }
                 }) {
                     Icon(
@@ -299,8 +335,17 @@ fun SubjectScreen(
 
         val postCount  = subject.postCount
         TextButton(onClick = {
-            postViewModel.fetchPosts(subjectViewModel.subjectId.value)
-            navController.navigate("subjectPost")
+            if(isClickable) {
+                isClickable = false
+                postViewModel.fetchPosts(subjectViewModel.subjectId.value)
+                navController.navigate("subjectPost")
+
+                coroutineScope.launch {
+                    delay(300)
+                    isClickable = true
+                }
+            }
+
         }
         ) {
             Text("게시글 보러가기 (${postCount})", modifier = Modifier.padding(start = 8.dp),
@@ -364,14 +409,25 @@ fun postPreviewLayout(
     subjectViewModel: SubjectViewModel, postViewModel: PostViewModel
 ) {
     val post = threePosts[index]
+    var isClickable by remember { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
 
     blackLine2()
     Spacer(Modifier.height(3.dp))
     Box(
         modifier = Modifier
             .clickable {
-                postViewModel.fetchPosts(subjectViewModel.subjectId.value)
-                navController.navigate("subjectPost")
+                if(isClickable) {
+                    isClickable = false
+                    postViewModel.fetchPosts(subjectViewModel.subjectId.value)
+                    navController.navigate("subjectPost")
+
+                    coroutineScope.launch {
+                        delay(300)
+                        isClickable = true
+                    }
+                }
+
             }
             .wrapContentSize()
     ) {

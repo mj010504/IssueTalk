@@ -32,6 +32,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +56,7 @@ import com.example.kinddiscussion.grayLine
 import com.example.kinddiscussion.ui.theme.selectedColor
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.format.TextStyle
 
 lateinit var postList : List<Post>
@@ -90,7 +92,9 @@ fun SubjectPostScreen(
 
 
     Box(
-        modifier = Modifier.pullRefresh(pullRefreshState).fillMaxSize()
+        modifier = Modifier
+            .pullRefresh(pullRefreshState)
+            .fillMaxSize()
     ) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -157,8 +161,6 @@ fun SubjectPostScreen(
     }
 
 
-
-
     if(showLogInDialog) {
         checkCancleDialog(onCheck = { navController.navigate("login") },
             onDismiss = { showLogInDialog = false}, dialogText = "로그인 후 이용이 가능합니다. 로그인하시겠습니까?" )
@@ -170,12 +172,19 @@ fun writePostButton (
     navController: NavController,
     onShowDialog : () -> Unit
 ){
+    var isClickable by remember { mutableStateOf(true) }
     OutlinedButton(
         onClick = {
+
+
             val auth = FirebaseAuth.getInstance()
             val user = auth.currentUser
             if(user!= null) {
-                navController.navigate("writePost")
+                if(isClickable) {
+                    isClickable = false
+                    navController.navigate("writePost")
+                }
+
             }
             else {
                 onShowDialog()
@@ -197,24 +206,35 @@ fun writePostButton (
 fun postLayout (
     navController: NavController, index : Int, postViewModel: PostViewModel, commentViewModel: CommentViewModel
 ) {
-
+    var isClickable by remember { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
     val post = postList[index]
     Box(
         modifier = Modifier
             .wrapContentSize()
             .clickable {
-                postViewModel.setPost(post, postIdList[index])
 
-                val subjecetId = post.subjectId
-                commentViewModel.fetchComments(subjecetId, postIdList[index])
+                if (isClickable) {
+                    isClickable = false
+                    postViewModel.setPost(post, postIdList[index])
 
-                val auth = FirebaseAuth.getInstance()
-                val user = auth.currentUser
-                if (user != null) {
-                    postViewModel.isPostLikedByUser(user.uid)
+                    val subjecetId = post.subjectId
+                    commentViewModel.fetchComments(subjecetId, postIdList[index])
+
+                    val auth = FirebaseAuth.getInstance()
+                    val user = auth.currentUser
+                    if (user != null) {
+                        postViewModel.isPostLikedByUser(user.uid)
+                    }
+
+                    navController.navigate("post")
+
+                    coroutineScope.launch {
+                        delay(300)
+                        isClickable = true
+                    }
                 }
 
-                navController.navigate("post")
             }
     ) {
         Row(

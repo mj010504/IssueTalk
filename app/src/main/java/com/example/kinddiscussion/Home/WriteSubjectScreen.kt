@@ -31,6 +31,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,6 +58,8 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -72,15 +75,24 @@ fun WriteSubjectScreen(
     var subjectText by remember { mutableStateOf("") }
     var agreeText by remember {mutableStateOf("")}
     var disagreeText by remember {mutableStateOf("")}
-    var dialogText by  remember {mutableStateOf("")}
 
+    var dialogText by  remember {mutableStateOf("")}
     var showDialog by remember { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
+    var isClickable by remember { mutableStateOf(true) }
 
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        IconButton(onClick= {navController.popBackStack()}) {
+        IconButton(onClick= {
+            if(isClickable) {
+                isClickable = false
+                navController.popBackStack()
+            }
+
+        }) {
             Icon(painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
                 modifier =  Modifier.padding(top = 4.dp, start = 6.dp))
         }
@@ -166,16 +178,16 @@ fun WriteSubjectScreen(
                         dialogText = "찬성의견과 반대의견을 작성해주세요."
                     }
                     else {
-                        val auth = FirebaseAuth.getInstance()
-
-                        val userId = auth.currentUser!!.uid
-                        val currentDate = getCurrentDateFormatted()
-                        val writeSubject = Subject(
-                            title = subjectText,
-                            agreeText = agreeText,
-                            disagreeText = disagreeText,
-                            0,0,0, userId, 0, selectedField, currentDate
-                        )
+                        if(isClickable) {
+                            val auth = FirebaseAuth.getInstance()
+                            val userId = auth.currentUser!!.uid
+                            val currentDate = getCurrentDateFormatted()
+                            val writeSubject = Subject(
+                                title = subjectText,
+                                agreeText = agreeText,
+                                disagreeText = disagreeText,
+                                0,0,0, userId, 0, selectedField, currentDate
+                            )
                             val isSuccess = subjectViewModel.writeSubject(writeSubject)
                             if(isSuccess) {
                                 navController.popBackStack()
@@ -183,7 +195,14 @@ fun WriteSubjectScreen(
                             else {
                                 showDialog =  true
                                 dialogText = "주제 등록에 실패했습니다."}
-                            }
+                        }
+
+                        coroutineScope.launch {
+                            delay(300)
+                            isClickable = true
+                        }
+                    }
+
 
                 },
                 colors = ButtonDefaults.outlinedButtonColors(

@@ -41,6 +41,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -76,6 +77,9 @@ import com.example.kinddiscussion.grayLine
 import com.example.kinddiscussion.ui.theme.selectedColor
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 lateinit var commentList : List<Comment>
 lateinit var commentIdList : List<String>
@@ -117,9 +121,14 @@ fun PostScreen(
         isRefreshing = false
     })
 
+    val coroutineScope = rememberCoroutineScope()
+    var isClickable by remember { mutableStateOf(true) }
+
     isLiked = postViewModel.isLiked.value
     val commentCount = post.commentCount.toString()
     sendButtonColor = if(commentText == "") Color.Gray else selectedColor
+
+
 
     BackHandler {
         navController.popBackStack()
@@ -136,7 +145,14 @@ fun PostScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         item {
-                            IconButton(onClick = { navController.popBackStack() }) {
+                            IconButton(onClick = {
+                                if(isClickable) {
+                                    isClickable = false
+                                    navController.popBackStack()
+
+                                }
+
+                            }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
                                     modifier = Modifier
@@ -242,7 +258,16 @@ fun PostScreen(
                             ) {
                                 IconButton(onClick = {
                                     if(user != null) {
-                                        postViewModel.likePost(user.uid)
+                                        if(isClickable) {
+                                            isClickable = false
+                                            postViewModel.likePost(user.uid)
+
+                                            coroutineScope.launch {
+                                                delay(300)
+                                                isClickable = true
+                                            }
+                                        }
+
                                     }
                                     else {
                                         showLogInDialog = true

@@ -80,7 +80,8 @@ fun LoginScreen(
 
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = selectedColor,
-                    unfocusedBorderColor = Color.Gray
+                    unfocusedBorderColor = Color.Gray,
+                    cursorColor = selectedColor
                 ),
                 value = emailText,
                 onValueChange = { newText -> emailText = newText },
@@ -97,7 +98,8 @@ fun LoginScreen(
             OutlinedTextField(
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = selectedColor,
-                    unfocusedBorderColor = Color.Gray
+                    unfocusedBorderColor = Color.Gray,
+                    cursorColor = selectedColor
                 ),
                 value = pwText,
                 onValueChange = { newText -> pwText = newText },
@@ -145,7 +147,10 @@ fun LoginScreen(
             Text(stringResource(id = R.string.signUp), color = Color.Black,  style =androidx.compose.ui.text.TextStyle(fontSize = 20.sp))
         }
         Spacer(modifier = Modifier.height(40.dp))
-        TextButton(onClick = {navController.navigate("home")}) {
+        TextButton(onClick = {
+            navController.popBackStack()
+            navController.navigate("home")
+        }) {
             Text("둘러보기", color = Color.Black,  style =androidx.compose.ui.text.TextStyle(fontSize = 16.sp))
         }
         }

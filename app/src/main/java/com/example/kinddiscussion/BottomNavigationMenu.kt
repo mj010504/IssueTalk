@@ -1,6 +1,7 @@
 package com.example.kinddiscussion
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -57,7 +58,10 @@ fun BottomMenu(
         Screen.Menu
     )
 
-    BottomNavigation ( backgroundColor = Color.White) {
+    BottomNavigation (
+        modifier = Modifier.navigationBarsPadding(),
+        backgroundColor = Color.White
+    ) {
         screens.forEach { screen ->
             BottomNavigationItem(
 

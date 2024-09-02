@@ -32,6 +32,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -63,6 +64,8 @@ import com.example.kinddiscussion.ui.theme.tabGreenColor
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 
@@ -91,8 +94,13 @@ fun HomeScreen(
         isRefreshing = false
     })
 
+    val coroutineScope = rememberCoroutineScope()
+    var isClickable by remember { mutableStateOf(true) }
+
     Box(
-            modifier = Modifier.pullRefresh(pullRefreshState).fillMaxSize()
+            modifier = Modifier
+                .pullRefresh(pullRefreshState)
+                .fillMaxSize()
         ) {
 
             LazyColumn(
@@ -109,8 +117,17 @@ fun HomeScreen(
                                 text = {Text(title, style = TextStyle(fontWeight = FontWeight.Bold))},
                                 selected = selectedTabIndex == index,
                                 onClick = {
-                                    selectedTabIndex = index
-                                    subjectViewModel.fetchSubjectByField(tabs[index])
+                                    if(isClickable) {
+                                        isClickable = false
+                                        selectedTabIndex = index
+                                        subjectViewModel.fetchSubjectByField(tabs[index])
+
+                                        coroutineScope.launch {
+                                            delay(300)
+                                            isClickable = true
+                                        }
+                                    }
+
                                 }
 
                             )
@@ -150,6 +167,8 @@ fun writeSubjectButton (
 
 ) {
 
+    var isClickable by remember { mutableStateOf(true) }
+
 
     Row(
         modifier = Modifier
@@ -162,7 +181,11 @@ fun writeSubjectButton (
                 val auth = FirebaseAuth.getInstance()
                 val user = auth.currentUser
                 if(user!= null) {
-                    navCotnroller.navigate("writeSubject")
+                    if(isClickable) {
+                        isClickable = false
+                        navCotnroller.navigate("writeSubject")
+                    }
+
                 }
                 else {
                     onShowDialog()
@@ -191,17 +214,27 @@ fun subjectLayout(
 
     val subject = subjectList[index]
     val subjectId = subjectIdList[index]
+    var isClickable by remember { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(
             modifier = Modifier
                 .clickable {
-                    val auth = FirebaseAuth.getInstance()
-                    val user = auth.currentUser
+                    if (isClickable) {
+                        isClickable = false
+                        val auth = FirebaseAuth.getInstance()
+                        val user = auth.currentUser
 
-                    subjectViewModel.setSubject(subject, subjectId)
-                    subjectViewModel.fetchLatestThreePosts()
-                    if(user != null) subjectViewModel.isVotedByUser(user.uid)
-                    navCotnroller.navigate("subject")
+                        subjectViewModel.setSubject(subject, subjectId)
+                        subjectViewModel.fetchLatestThreePosts()
+                        if (user != null) subjectViewModel.isVotedByUser(user.uid)
+                        navCotnroller.navigate("subject")
+
+                        coroutineScope.launch {
+                            delay(300)
+                            isClickable = true
+                        }
+                    }
                 }
                 .wrapContentSize()
         ) {
@@ -231,9 +264,18 @@ fun subjectLayout(
     Box(
         modifier = Modifier
             .clickable {
-                subjectViewModel.setSubject(subject, subjectId)
-                subjectViewModel.fetchLatestThreePosts()
-                navCotnroller.navigate("subject")
+                if (isClickable) {
+                    isClickable = false
+                    subjectViewModel.setSubject(subject, subjectId)
+                    subjectViewModel.fetchLatestThreePosts()
+                    navCotnroller.navigate("subject")
+
+                    coroutineScope.launch {
+                        delay(300)
+                        isClickable = true
+                    }
+                }
+
             }
             .wrapContentSize()
     ) {

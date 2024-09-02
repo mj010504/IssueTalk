@@ -3,7 +3,9 @@ package com.example.kinddiscussion.Home
 import PostViewModel
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +19,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -25,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +48,8 @@ import com.example.kinddiscussion.checkDialog
 import com.example.kinddiscussion.getCurrentDateFormatted
 import com.example.kinddiscussion.ui.theme.selectedColor
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun WritePostScreen(
@@ -57,9 +63,12 @@ fun WritePostScreen(
     var dialogText by  remember {mutableStateOf("")}
     var showDialog by remember { mutableStateOf(false) }
 
+    var isClickable by remember { mutableStateOf(true) }
+
     BackHandler {
         navController.popBackStack()
     }
+
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -70,35 +79,52 @@ fun WritePostScreen(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            IconButton(onClick = {navController.popBackStack()}) {
+            IconButton(onClick = {
+                if(isClickable) {
+                    isClickable = false
+                    navController.popBackStack()
+                }
+
+            }) {
                 Icon(painter = painterResource(id = R.drawable.arrow_back), contentDescription = null,
                 modifier = Modifier
                     .padding(start = 6.dp)
                     .width(35.dp)
                     .height(35.dp))
+
             }
             OutlinedButton(
-                onClick = {
-                    val auth = FirebaseAuth.getInstance()
-                    val userId = auth.currentUser!!.uid
-                    val currentDate = getCurrentDateFormatted()
-                    val writePost = Post(
-                        title = titleText,
-                        content = contentText,userId = userId, subjectId = subjectViewModel.subjectId.value,
-                        field = subjectViewModel.subject.value.subjectField, likeCount = 0,
-                        commentCount = 0, userName = auth.currentUser!!.displayName.toString(),
-                        date = currentDate
-                    )
 
-                    val isSuccess = postViewModel.writePost(writePost)
-                    if(isSuccess) {
-                        subjectViewModel.updatePost(writePost)
-                        navController.popBackStack()
+                onClick = {
+                    if(isClickable) {
+                        isClickable = false
+                        val auth = FirebaseAuth.getInstance()
+                        val userId = auth.currentUser!!.uid
+                        val currentDate = getCurrentDateFormatted()
+                        val writePost = Post(
+                            title = titleText,
+                            content = contentText,
+                            userId = userId,
+                            subjectId = subjectViewModel.subjectId.value,
+                            field = subjectViewModel.subject.value.subjectField,
+                            likeCount = 0,
+                            commentCount = 0,
+                            userName = auth.currentUser!!.displayName.toString(),
+                            date = currentDate
+                        )
+
+                        val isSuccess = postViewModel.writePost(writePost)
+                        if (isSuccess) {
+                            subjectViewModel.updatePost(writePost)
+                            navController.popBackStack()
+                        } else {
+                            showDialog = true
+                            dialogText = "게시글 등록에 실패했습니다."
+                        }
+
+
                     }
-                    else {
-                        showDialog =  true
-                        dialogText = "게시글 등록에 실패했습니다."
-                    }
+
 
                 },
                 colors = ButtonDefaults.outlinedButtonColors(

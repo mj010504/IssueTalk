@@ -129,7 +129,7 @@ class SubjectViewModel : ViewModel() {
                     .add(subject)
                     .await()
 
-                if(subject.subjectField == tab.value) {
+                if(subject.subjectField == tab.value || tab.value == "전체") {
                     val subjectId = docRef.id
                     _subjectList.add(0, subject)
                     _subjectIdList.add(0, subjectId)
