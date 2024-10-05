@@ -1,14 +1,12 @@
 package com.example.kinddiscussion
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,11 +19,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.rememberNavController
-import com.example.kinddiscussion.Home.SubjectScreen
-import com.example.kinddiscussion.Home.commentLayout
-import com.example.kinddiscussion.Home.commentList
-import com.example.kinddiscussion.ui.theme.selectedColor
+import com.example.kinddiscussion.core.designsystem.theme.selectedColor
 
 @Composable
 fun testScreen(
