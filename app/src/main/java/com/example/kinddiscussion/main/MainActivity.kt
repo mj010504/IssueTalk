@@ -16,8 +16,9 @@ import com.example.kinddiscussion.feature.search.SearchViewModel
 import com.example.kinddiscussion.feature.home.SubjectViewModel
 import com.example.kinddiscussion.core.designsystem.theme.KindDiscussionTheme
 import com.example.kinddiscussion.main.navigation.navigation
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val subjectViewModel by viewModels<SubjectViewModel>()

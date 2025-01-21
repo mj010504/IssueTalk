@@ -1,4 +1,4 @@
-package com.example.kinddiscussion.feature.auth.login
+package com.example.kinddiscussion.feature.auth
 
 
 import androidx.compose.foundation.layout.Column
@@ -57,13 +57,13 @@ fun LoginScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(80.dp))
+        Spacer(modifier = Modifier.height(30.dp))
         Icon(
             painter = painterResource(id = R.drawable.issuetalk),
             contentDescription = null,
             modifier = Modifier
-                .width(160.dp)
-                .height(160.dp),
+                .width(120.dp)
+                .height(120.dp),
             tint = Color.Unspecified
         )
         Spacer(modifier = Modifier.height(30.dp))

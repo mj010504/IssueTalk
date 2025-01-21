@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "KindDiscussion"
+rootProject.name = "IssueTalk"
 include(":app")

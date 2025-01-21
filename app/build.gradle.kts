@@ -1,7 +1,11 @@
 plugins {
+    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
+
 }
 
 android {
@@ -52,6 +56,9 @@ android {
 
 dependencies {
 
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+
     implementation("com.google.firebase:firebase-auth:23.0.0")
     val nav_version = "2.7.7"
 
@@ -87,5 +94,6 @@ dependencies {
 
     implementation("com.google.accompanist:accompanist-swiperefresh:0.27.0")
 
-
 }
+
+

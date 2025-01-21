@@ -1,4 +1,4 @@
-package com.example.kinddiscussion.feature.auth
+package com.example.kinddiscussion.feature.auth.signup
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
