@@ -1,4 +1,4 @@
-package com.example.kinddiscussion.feature.auth
+package com.example.kinddiscussion.feature.auth.login
 
 
 import androidx.compose.foundation.layout.Column
@@ -48,67 +48,69 @@ fun LoginScreen(
 ) {
     var emailText by remember { mutableStateOf("") }
     var pwText by remember { mutableStateOf("") }
-    var showNotTextDialog by remember {mutableStateOf(false)}
+    var showNotTextDialog by remember { mutableStateOf(false) }
     var showLoginFailedDialog by remember { mutableStateOf(false) }
 
     val auth = FirebaseAuth.getInstance()
 
-    Column (
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(80.dp))
-            Icon(painter =  painterResource(id = R.drawable.issuetalk), contentDescription = null
-            ,modifier = Modifier
-                    .width(160.dp)
-                    .height(160.dp),
-                tint = Color.Unspecified)
-            Spacer(modifier = Modifier.height(30.dp))
-            OutlinedTextField(
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.height(80.dp))
+        Icon(
+            painter = painterResource(id = R.drawable.issuetalk),
+            contentDescription = null,
+            modifier = Modifier
+                .width(160.dp)
+                .height(160.dp),
+            tint = Color.Unspecified
+        )
+        Spacer(modifier = Modifier.height(30.dp))
+        OutlinedTextField(
 
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = selectedColor,
-                    unfocusedBorderColor = Color.Gray,
-                    cursorColor = selectedColor
-                ),
-                value = emailText,
-                onValueChange = { newText -> emailText = newText },
-                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp),
-                placeholder = { Text("이메일") },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Email
-                ),
-                modifier = Modifier
-                    .wrapContentSize()
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = selectedColor,
+                unfocusedBorderColor = Color.Gray,
+                cursorColor = selectedColor
+            ),
+            value = emailText,
+            onValueChange = { newText -> emailText = newText },
+            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp),
+            placeholder = { Text("이메일") },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Email
+            ),
+            modifier = Modifier
+                .wrapContentSize()
 
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            OutlinedTextField(
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = selectedColor,
-                    unfocusedBorderColor = Color.Gray,
-                    cursorColor = selectedColor
-                ),
-                value = pwText,
-                onValueChange = { newText -> pwText = newText },
-                placeholder = { Text("비밀번호") },
-                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp),
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Password
-                ),
-                modifier = Modifier
-                    .wrapContentSize()
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        OutlinedTextField(
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = selectedColor,
+                unfocusedBorderColor = Color.Gray,
+                cursorColor = selectedColor
+            ),
+            value = pwText,
+            onValueChange = { newText -> pwText = newText },
+            placeholder = { Text("비밀번호") },
+            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp),
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Password
+            ),
+            modifier = Modifier
+                .wrapContentSize()
 
         )
         Spacer(modifier = Modifier.height(10.dp))
 
         Button(
             onClick = {
-                if(emailText == "" || pwText == "") {
+                if (emailText == "" || pwText == "") {
                     showNotTextDialog = true
-                }
-                else {
+                } else {
                     auth.signInWithEmailAndPassword(emailText, pwText)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
@@ -128,27 +130,42 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .padding(start = 53.dp, end = 53.dp)
         ) {
-            Text(stringResource(id = R.string.login), color = Color.White,style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp))
+            Text(
+                stringResource(id = R.string.login),
+                color = Color.White,
+                style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp)
+            )
         }
         Spacer(modifier = Modifier.height(10.dp))
-        TextButton(onClick = {navController.navigate("signUp")}) {
-            Text(stringResource(id = R.string.signUp), color = Color.Black,  style =androidx.compose.ui.text.TextStyle(fontSize = 20.sp))
+        TextButton(onClick = { navController.navigate("signUp") }) {
+            Text(
+                stringResource(id = R.string.signUp),
+                color = Color.Black,
+                style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp)
+            )
         }
         Spacer(modifier = Modifier.height(40.dp))
         TextButton(onClick = {
             navController.popBackStack()
             navController.navigate("home")
         }) {
-            Text("둘러보기", color = Color.Black,  style =androidx.compose.ui.text.TextStyle(fontSize = 16.sp))
+            Text(
+                "둘러보기",
+                color = Color.Black,
+                style = androidx.compose.ui.text.TextStyle(fontSize = 16.sp)
+            )
         }
-        }
-
-
-    if(showLoginFailedDialog) {
-        checkDialog(onDismiss = { showLoginFailedDialog = false }, dialogText = "아이디 또는 비밀번호가 일치하지 않습니다.")
     }
 
-    if(showNotTextDialog) {
+
+    if (showLoginFailedDialog) {
+        checkDialog(
+            onDismiss = { showLoginFailedDialog = false },
+            dialogText = "아이디 또는 비밀번호가 일치하지 않습니다."
+        )
+    }
+
+    if (showNotTextDialog) {
         checkDialog(onDismiss = { showNotTextDialog = false }, dialogText = "이메일과 비밀번호를 입력해주세요.")
     }
 }

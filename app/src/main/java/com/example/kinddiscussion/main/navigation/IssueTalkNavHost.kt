@@ -25,7 +25,7 @@ import com.example.kinddiscussion.feature.home.SubjectViewModel
 import com.example.kinddiscussion.feature.menu.MenuScreen
 import com.example.kinddiscussion.feature.search.SearchScreen
 import com.example.kinddiscussion.feature.splash.SplashScreen
-import com.example.kinddiscussion.feature.auth.LoginScreen
+import com.example.kinddiscussion.feature.auth.login.LoginScreen
 import com.example.kinddiscussion.feature.auth.SignUpScreen
 
 @OptIn(ExperimentalMaterialApi::class)

@@ -30,8 +30,6 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-
-
                 KindDiscussionTheme {
 
                     Surface(
