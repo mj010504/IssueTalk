@@ -41,7 +41,7 @@ import androidx.navigation.NavController
 import com.example.issueTalk.R
 import com.example.issueTalk.core.designsystem.component.checkCancleDialog
 import com.example.issueTalk.core.designsystem.component.checkDialog
-import com.example.issueTalk.core.designsystem.theme.selectedColor
+import com.example.issueTalk.core.designsystem.theme.subColor
 import com.example.issueTalk.feature.post.PostViewModel
 
 @Composable
@@ -93,9 +93,9 @@ fun EditPostScreen(
                     else {showDialog = true; dialogText = "게시글 수정에 실패했습니다."}
                 },
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = selectedColor
+                    contentColor = subColor
                 ),
-                border = BorderStroke(1.dp, selectedColor),
+                border = BorderStroke(1.dp, subColor),
                 modifier = Modifier.padding(end = 15.dp)
 
             ) {
@@ -118,8 +118,8 @@ fun EditPostScreen(
                 )
             }, colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.White,
-                focusedIndicatorColor = selectedColor,
-                cursorColor = selectedColor
+                focusedIndicatorColor = subColor,
+                cursorColor = subColor
             ),
             textStyle = TextStyle(fontSize = 25.sp)
         )
@@ -140,8 +140,8 @@ fun EditPostScreen(
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = selectedColor,
-                cursorColor = selectedColor
+                focusedIndicatorColor = subColor,
+                cursorColor = subColor
             )
 
         )

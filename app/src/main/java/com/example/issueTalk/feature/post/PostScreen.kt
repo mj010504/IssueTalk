@@ -61,7 +61,7 @@ import com.example.issueTalk.core.common.util.getCurrentDateFormatted
 import com.example.issueTalk.core.designsystem.component.checkCancleDialog
 import com.example.issueTalk.core.designsystem.component.checkDialog
 import com.example.issueTalk.core.designsystem.component.grayLine
-import com.example.issueTalk.core.designsystem.theme.selectedColor
+import com.example.issueTalk.core.designsystem.theme.subColor
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -111,7 +111,7 @@ fun PostScreen(
 
     isLiked = postViewModel.isLiked.value
     val commentCount = post.commentCount.toString()
-    sendButtonColor = if(commentText == "") Color.Gray else selectedColor
+    sendButtonColor = if(commentText == "") Color.Gray else subColor
 
 
 
@@ -307,7 +307,7 @@ fun PostScreen(
                             value = commentText,
                             onValueChange = { newText -> commentText = newText },
                             colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = selectedColor,
+                                focusedBorderColor = subColor,
                                 unfocusedBorderColor = Color.Gray,
                                 cursorColor = Color.Black
 

@@ -42,8 +42,8 @@ import com.example.issueTalk.R
 
 import com.example.issueTalk.core.common.util.getCurrentDateFormatted
 import com.example.issueTalk.core.designsystem.component.checkDialog
+import com.example.issueTalk.core.designsystem.theme.subColor
 
-import com.example.issueTalk.core.designsystem.theme.selectedColor
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -123,9 +123,9 @@ fun WritePostScreen(
 
                 },
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = selectedColor
+                    contentColor = subColor
                 ),
-                border = BorderStroke(1.dp, selectedColor),
+                border = BorderStroke(1.dp, subColor),
                 modifier = Modifier.padding(end = 15.dp)
 
             ) {
@@ -146,8 +146,8 @@ fun WritePostScreen(
                 )
             }, colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.White,
-                focusedIndicatorColor = selectedColor,
-                cursorColor = selectedColor
+                focusedIndicatorColor = subColor,
+                cursorColor = subColor
             ),
             textStyle = TextStyle(fontSize = 25.sp)
         )
@@ -168,8 +168,8 @@ fun WritePostScreen(
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = selectedColor,
-                cursorColor = selectedColor
+                focusedIndicatorColor = subColor,
+                cursorColor = subColor
             )
 
         )

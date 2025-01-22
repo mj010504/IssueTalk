@@ -4,7 +4,7 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
-import com.example.issueTalk.core.designsystem.theme.selectedColor
+import com.example.issueTalk.core.designsystem.theme.subColor
 
 @Composable
 fun checkDialog(
@@ -15,7 +15,7 @@ fun checkDialog(
         text = { Text(dialogText) },
         confirmButton = {
             TextButton(onClick = {  onDismiss() } ) {
-                Text("확인", color = selectedColor)
+                Text("확인", color = subColor)
             }
         }
     )
@@ -30,12 +30,12 @@ fun checkCancleDialog (
         text = { Text(dialogText) },
         confirmButton = {
             TextButton(onClick = {  onCheck() } ) {
-                Text("확인", color = selectedColor)
+                Text("확인", color = subColor)
             }
         },
         dismissButton = {
             TextButton(onClick = {  onDismiss() } ) {
-                Text("취소", color = selectedColor)
+                Text("취소", color = subColor)
             }
         }
     )

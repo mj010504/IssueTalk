@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.issueTalk.R
 import com.example.issueTalk.core.designsystem.component.checkDialog
-import com.example.issueTalk.core.designsystem.theme.selectedColor
+import com.example.issueTalk.core.designsystem.theme.subColor
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -101,7 +101,7 @@ fun SignUpScreen(
         OutlinedTextField(
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = selectedColor,
+                focusedBorderColor = subColor,
                 unfocusedBorderColor = Color.Gray
             ),
             value = nameText,
@@ -123,7 +123,7 @@ fun SignUpScreen(
         OutlinedTextField(
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = selectedColor,
+                focusedBorderColor = subColor,
                 unfocusedBorderColor = Color.Gray
             ),
             value = emailText,
@@ -149,7 +149,7 @@ fun SignUpScreen(
         OutlinedTextField(
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = selectedColor,
+                focusedBorderColor = subColor,
                 unfocusedBorderColor = Color.Gray
             ),
             value = pwText,
@@ -175,7 +175,7 @@ fun SignUpScreen(
         OutlinedTextField(
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = selectedColor,
+                focusedBorderColor = subColor,
                 unfocusedBorderColor = Color.Gray
             ),
             value = pwCheckTest,
@@ -228,7 +228,7 @@ fun SignUpScreen(
                     showPwDialog = true
                 }
             },
-            colors = ButtonDefaults.buttonColors(selectedColor),
+            colors = ButtonDefaults.buttonColors(subColor),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 20.dp, end = 20.dp)

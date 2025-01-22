@@ -59,7 +59,7 @@ import com.example.issueTalk.core.designsystem.component.blackLine
 import com.example.issueTalk.core.designsystem.component.checkDialog
 import com.example.issueTalk.core.designsystem.component.grayLine
 import com.example.issueTalk.core.designsystem.theme.searchFieldColor
-import com.example.issueTalk.core.designsystem.theme.selectedColor
+import com.example.issueTalk.core.designsystem.theme.subColor
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -136,7 +136,7 @@ fun SearchScreen(
                     backgroundColor = searchFieldColor,
                     unfocusedIndicatorColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
-                    cursorColor = selectedColor
+                    cursorColor = subColor
                 ),
                 shape = RoundedCornerShape(20.dp),
                 textStyle = TextStyle(fontSize = 20.sp),

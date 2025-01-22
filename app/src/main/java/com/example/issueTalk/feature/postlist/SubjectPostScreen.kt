@@ -48,7 +48,7 @@ import com.example.issueTalk.R
 import com.example.issueTalk.core.common.util.fieldToImage
 import com.example.issueTalk.core.designsystem.component.checkCancleDialog
 import com.example.issueTalk.core.designsystem.component.grayLine
-import com.example.issueTalk.core.designsystem.theme.selectedColor
+import com.example.issueTalk.core.designsystem.theme.subColor
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -185,9 +185,9 @@ fun writePostButton (
             }
          },
         colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = selectedColor
+            contentColor = subColor
         ),
-        border = BorderStroke(1.dp, selectedColor),
+        border = BorderStroke(1.dp, subColor),
         modifier = Modifier.padding(end = 15.dp)
 
     ) {

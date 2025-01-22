@@ -19,7 +19,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.issueTalk.core.designsystem.theme.selectedColor
+import com.example.issueTalk.core.designsystem.theme.subColor
 
 @Composable
 fun testScreen(
@@ -46,7 +46,7 @@ fun testScreen(
             value = commentText,
             onValueChange = { newText -> commentText = newText },
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = selectedColor,
+                focusedBorderColor = subColor,
                 unfocusedBorderColor = Color.Gray
 
             ),

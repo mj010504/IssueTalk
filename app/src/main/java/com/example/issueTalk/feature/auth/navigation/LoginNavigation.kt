@@ -1,10 +1,12 @@
 package com.example.issueTalk.feature.auth.navigation
 
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.example.issueTalk.feature.auth.LoginRoute
+import com.example.issueTalk.feature.auth.LoginViewModel
 import com.example.issueTalk.feature.splash.navigation.SplashRoute
 import kotlinx.serialization.Serializable
 

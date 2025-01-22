@@ -45,7 +45,7 @@ import com.example.issueTalk.feature.home.SubjectViewModel
 import com.example.issueTalk.R
 import com.example.issueTalk.core.common.util.getCurrentDateFormatted
 import com.example.issueTalk.core.designsystem.component.checkDialog
-import com.example.issueTalk.core.designsystem.theme.selectedColor
+import com.example.issueTalk.core.designsystem.theme.subColor
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -95,7 +95,7 @@ fun WriteSubjectScreen(
         OutlinedTextField(
             value = subjectText,
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = selectedColor,
+                focusedBorderColor = subColor,
                 unfocusedBorderColor = Color.Gray
             ),
             textStyle = TextStyle(fontSize = 20.sp),
@@ -113,9 +113,9 @@ fun WriteSubjectScreen(
         OutlinedTextField(
             value = agreeText,
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = selectedColor,
+                focusedBorderColor = subColor,
                 unfocusedBorderColor = Color.Gray,
-                cursorColor = selectedColor
+                cursorColor = subColor
             ),
             textStyle = TextStyle(fontSize = 20.sp),
             onValueChange = { newText -> agreeText = newText },
@@ -133,9 +133,9 @@ fun WriteSubjectScreen(
         OutlinedTextField(
             value = disagreeText,
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = selectedColor,
+                focusedBorderColor = subColor,
                 unfocusedBorderColor = Color.Gray,
-                cursorColor = selectedColor
+                cursorColor = subColor
             ),
             textStyle = TextStyle(fontSize = 20.sp),
             onValueChange = { newText -> disagreeText = newText },
@@ -195,9 +195,9 @@ fun WriteSubjectScreen(
 
                 },
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = selectedColor
+                    contentColor = subColor
                 ),
-                border = BorderStroke(1.dp, selectedColor),
+                border = BorderStroke(1.dp, subColor),
                 modifier = Modifier
                     .width(200.dp)
                     .height(60.dp),
