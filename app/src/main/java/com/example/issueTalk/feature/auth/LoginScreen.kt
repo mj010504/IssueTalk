@@ -117,13 +117,15 @@ fun LoginScreen(
             ),
             value = emailText,
             onValueChange = { onEmailTextChanged(it) },
-            textStyle = TextStyle(fontSize = 16.sp),
-            placeholder = { Text("이메일") },
+            textStyle = TextStyle(fontSize = 14.sp),
+            placeholder = { Text("이메일", style = TextStyle(fontSize = 14.sp)) },
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Email
             ),
             modifier = Modifier
-                .wrapContentSize()
+                .fillMaxWidth()
+                .padding(horizontal = 34.dp)
+                .height(50.dp)
 
         )
         Spacer(modifier = Modifier.height(20.dp))
@@ -135,34 +137,37 @@ fun LoginScreen(
             ),
             value = passwordText,
             onValueChange = { onPasswordTextChanged(it) },
-            placeholder = { Text("비밀번호") },
-            textStyle = TextStyle(fontSize = 20.sp),
+            placeholder = { Text("비밀번호", style = TextStyle(fontSize = 14.sp)) },
+            textStyle = TextStyle(fontSize = 14.sp),
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Password
             ),
-            modifier = Modifier.wrapContentSize()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 34.dp)
+                .height(50.dp)
 
         )
         Spacer(modifier = Modifier.height(10.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp),
-            horizontalArrangement = Arrangement.SpaceAround
+                .padding(horizontal = 34.dp),
         ) {
-                Text(
-                    stringResource(id = R.string.signUp),
-                    color = Color.Black,
-                    style = TextStyle(fontSize = 14.sp),
-                    modifier = Modifier.clickWithRipple {  }
-                )
-                Text(
-                    stringResource(id = R.string.find_password),
-                    color = subColor,
-                    style = TextStyle(fontSize = 14.sp),
-                    modifier = Modifier.clickWithRipple {  }
-                )
+            Text(
+                stringResource(id = R.string.signUp),
+                color = Color.Black,
+                style = TextStyle(fontSize = 12.sp),
+                modifier = Modifier.clickWithRipple { }
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Text(
+                stringResource(id = R.string.find_password),
+                color = subColor,
+                style = TextStyle(fontSize = 12.sp),
+                modifier = Modifier.clickWithRipple { }
+            )
 
         }
 
@@ -181,9 +186,9 @@ fun LoginScreen(
                 style = TextStyle(fontSize = 20.sp)
             )
         }
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(15.dp))
         Text("또는")
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
         Image(
             painter = painterResource(id = R.drawable.google_login),
             contentDescription = null,
@@ -191,7 +196,7 @@ fun LoginScreen(
 
             }
         )
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.weight(1f))
         Text(
             "둘러보기",
             color = Color.Black,
@@ -201,6 +206,7 @@ fun LoginScreen(
             }
 
         )
+        Spacer(modifier = Modifier.height(60.dp))
     }
 
     if (showLoginFailedDialog) {
