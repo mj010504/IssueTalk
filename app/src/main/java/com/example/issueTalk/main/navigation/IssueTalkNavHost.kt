@@ -1,14 +1,17 @@
 package com.example.issueTalk.main.navigation
 
 
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import com.example.issueTalk.feature.auth.navigation.LoginRoute
 import com.example.issueTalk.feature.auth.navigation.loginScreen
 import com.example.issueTalk.feature.auth.navigation.navigateToLogin
+import com.example.issueTalk.feature.auth.signup.navigation.navigateToSignUp
 import com.example.issueTalk.feature.auth.signup.navigation.signUpScreen
 import com.example.issueTalk.feature.home.navigation.HomeRoute
 import com.example.issueTalk.feature.home.navigation.homeScreen
@@ -45,7 +48,11 @@ fun IssueTalkNavHost(
         )
         loginScreen(
             navigateToSignUp = {
-
+                navController.navigateToSignUp(
+                    navOptions {
+                        popUpTo<LoginRoute> { inclusive = true }
+                    }
+                )
             },
             navigateToHome = {
                 navController.navigateToHome(

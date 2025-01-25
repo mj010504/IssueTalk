@@ -1,11 +1,8 @@
 package com.example.issueTalk.feature.auth
 
 
-import android.widget.ImageButton
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,19 +11,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
+import androidx.compose.material.Card
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.ripple
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,18 +39,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
+import com.example.issueTalk.feature.auth.LoginViewModel.LoginEvent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
+
 import com.example.issueTalk.R
 import com.example.issueTalk.core.common.util.clickWithRipple
 import com.example.issueTalk.core.designsystem.component.checkDialog
 import com.example.issueTalk.core.designsystem.theme.primaryColor
 import com.example.issueTalk.core.designsystem.theme.subColor
-import com.example.issueTalk.feature.menu.MenuScreen
-import com.google.firebase.auth.FirebaseAuth
+
+
 
 
 @Composable
@@ -67,14 +60,34 @@ fun LoginRoute(
 ) {
     val emailText by viewModel.emailText.collectAsStateWithLifecycle()
     val passwordText by viewModel.passwordText.collectAsStateWithLifecycle()
+    var dialogMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(true) {
+        viewModel.eventChannel.collect { event ->
+            when (event) {
+                is LoginEvent.NavigateToHome -> navigateToHome()
+                is LoginEvent.NavigateToSignUp -> navigateToSignUp()
+                is LoginEvent.ShowDialog -> dialogMessage = event.message
+            }
+        }
+    }
 
     LoginScreen(
         emailText,
         passwordText,
         onEmailTextChanged = viewModel::setEmailText,
         onPasswordTextChanged = viewModel::setPasswordText,
-        login = viewModel::login
+        login = viewModel::login,
+        navigateToSignUp = viewModel::navigateToSignUp,
+        navigateToHome = viewModel::navigateToHome
     )
+
+    dialogMessage?.let {
+        checkDialog(
+            onDismiss = { dialogMessage = null },
+            dialogText = it
+        )
+    }
 }
 
 @Composable
@@ -83,12 +96,10 @@ fun LoginScreen(
     passwordText: String,
     onEmailTextChanged: (String) -> Unit,
     onPasswordTextChanged: (String) -> Unit,
-    login: () -> Unit
+    login: () -> Unit,
+    navigateToSignUp: () -> Unit,
+    navigateToHome: () -> Unit,
 ) {
-
-    var showNotTextDialog by remember { mutableStateOf(false) }
-    var showLoginFailedDialog by remember { mutableStateOf(false) }
-
 
 
     Column(
@@ -159,7 +170,9 @@ fun LoginScreen(
                 stringResource(id = R.string.signUp),
                 color = Color.Black,
                 style = TextStyle(fontSize = 12.sp),
-                modifier = Modifier.clickWithRipple { }
+                modifier = Modifier.clickWithRipple {
+                    navigateToSignUp()
+                }
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
@@ -189,36 +202,33 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(15.dp))
         Text("또는")
         Spacer(modifier = Modifier.height(20.dp))
-        Image(
-            painter = painterResource(id = R.drawable.google_login),
-            contentDescription = null,
-            modifier = Modifier.clickWithRipple {
+        Card(
+            elevation = 3.dp
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.google_login),
+                contentDescription = null,
+                modifier = Modifier.clickWithRipple {
 
-            }
-        )
+                }
+
+            )
+        }
+
         Spacer(modifier = Modifier.weight(1f))
         Text(
             "둘러보기",
             color = Color.Black,
             style = TextStyle(fontSize = 16.sp),
             modifier = Modifier.clickWithRipple {
-
+                navigateToHome()
             }
 
         )
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.height(70.dp))
     }
 
-    if (showLoginFailedDialog) {
-        checkDialog(
-            onDismiss = { showLoginFailedDialog = false },
-            dialogText = "아이디 또는 비밀번호가 일치하지 않습니다."
-        )
-    }
 
-    if (showNotTextDialog) {
-        checkDialog(onDismiss = { showNotTextDialog = false }, dialogText = "이메일과 비밀번호를 입력해주세요.")
-    }
 }
 
 
