@@ -10,10 +10,10 @@ plugins {
 }
 
 android {
-    namespace = "com.example.issueTalk"
+    namespace = "com.example.issuetalk"
     compileSdk = 35
     defaultConfig {
-        applicationId = "com.example.issueTalk"
+        applicationId = "com.example.issuetalk"
         minSdk = 33
         targetSdk = 34
         versionCode = 1
