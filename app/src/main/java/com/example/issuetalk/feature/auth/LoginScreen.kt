@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -23,6 +24,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -138,6 +140,13 @@ fun LoginScreen(
             onValueChange = { onEmailTextChanged(it) },
             textStyle = TextStyle(fontSize = 14.sp),
             placeholder = { Text("이메일", style = TextStyle(fontSize = 14.sp)) },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = "이메일",
+                    modifier = Modifier.size(16.dp)
+                )
+            },
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next
@@ -145,6 +154,7 @@ fun LoginScreen(
             keyboardActions = KeyboardActions(
                 onNext = { passwordFocusRequester.requestFocus() }
             ),
+
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 34.dp)
