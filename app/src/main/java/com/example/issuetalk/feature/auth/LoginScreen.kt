@@ -2,6 +2,7 @@ package com.example.issuetalk.feature.auth
 
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -52,7 +53,6 @@ import androidx.compose.ui.unit.sp
 import com.example.issuetalk.feature.auth.LoginViewModel.LoginEvent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-
 import com.example.issuetalk.R
 import com.example.issuetalk.core.common.util.clickWithRipple
 import com.example.issuetalk.core.designsystem.component.checkDialog
@@ -114,9 +114,10 @@ fun LoginScreen(
 
     Column(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.weight(1f))
         Image(
             painter = painterResource(id = R.drawable.issuetalk),
             contentDescription = null,
@@ -224,7 +225,7 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 34.dp, end = 34.dp)
-                .clip(RoundedCornerShape(35.dp))
+                .clip(RoundedCornerShape(15.dp))
         ) {
             Text(
                 stringResource(id = R.string.login),
