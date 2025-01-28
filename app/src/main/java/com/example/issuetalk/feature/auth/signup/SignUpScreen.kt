@@ -6,11 +6,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 
@@ -20,12 +24,19 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,9 +46,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -55,6 +69,7 @@ import com.example.issuetalk.core.designsystem.component.checkDialog
 import com.example.issuetalk.core.designsystem.theme.lightRed
 import com.example.issuetalk.core.designsystem.theme.primaryColor
 import com.example.issuetalk.core.designsystem.theme.subColor
+import com.example.issuetalk.core.designsystem.theme.topBarColor
 
 @Composable
 fun SignUpRoute(
@@ -107,6 +122,7 @@ fun SignUpRoute(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
     emailText: String,
@@ -133,47 +149,56 @@ fun SignUpScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            IconButton(
-                onClick = {
-                    popBackStack()
 
-                },
-                modifier = Modifier.align(Alignment.TopStart)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = "뒤로 가기",
-                    modifier = Modifier
-                        .padding(start = 10.dp, top = 15.dp)
-                        .width(30.dp)
-                        .height(30.dp)
+        CenterAlignedTopAppBar(
+
+            title = {
+                    Row(modifier = Modifier.wrapContentSize(),
+                        verticalAlignment = Alignment.CenterVertically)
+                    {
+                        Icon(
+                            painter = painterResource(id = R.drawable.issuetalk),
+                            contentDescription = null,
+                            tint = Color.Unspecified,
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(40.dp)
+                        )
+                        Spacer(Modifier.width(3.dp))
+                        Text(
+                            text = stringResource(id = R.string.sign_up),
+                            style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+                            color = Color.Black
+                        )
+                    }
+            },
+            navigationIcon = {
+                IconButton(onClick = { popBackStack() }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
+                        contentDescription = "뒤로 가기",
+                    )
+                }
+
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = Color.White,
+                navigationIconContentColor = Color.Black,
+
+            ),
+            windowInsets = WindowInsets(top = 5.dp, bottom = 0.dp),
+            modifier = Modifier.fillMaxWidth().drawBehind {
+                drawLine(
+                    color = Color.Gray,
+                    start = Offset(0f, size.height),
+                    end = Offset(size.width, size.height),
+                    strokeWidth = 1.dp.toPx()
                 )
             }
-        }
+        )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.issuetalk), contentDescription = null,
-                tint = Color.Unspecified, modifier = Modifier
-                    .width(80.dp)
-                    .height(80.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = stringResource(
-                    id = R.string.sign_up
-                ), style = TextStyle(fontSize = 25.sp), fontWeight = FontWeight.Bold
-            )
 
-        }
-        Spacer(Modifier.height(25.dp))
+        Spacer(Modifier.weight(1f))
         Text(
             text = "이름", modifier = Modifier
                 .fillMaxWidth()
@@ -229,7 +254,12 @@ fun SignUpScreen(
             ),
             value = emailText,
             onValueChange = { onEmailChange(it) },
-            placeholder = { Text("예: issueTalk@naver.com", style = TextStyle(fontSize = 14.sp)) },
+            placeholder = {
+                Text(
+                    "예: issueTalk@naver.com",
+                    style = TextStyle(fontSize = 14.sp)
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)

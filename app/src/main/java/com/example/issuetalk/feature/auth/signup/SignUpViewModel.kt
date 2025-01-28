@@ -48,7 +48,7 @@ class SignUpViewModel @Inject constructor(
 
     fun setEmailText(emailText: String) {
         _emailText.value = emailText
-        validateEmail(_emailText.value)
+        validateEmail()
     }
 
     fun setNameText(nameText: String) {
@@ -68,7 +68,7 @@ class SignUpViewModel @Inject constructor(
     }
 
     private fun validateName() {
-        val nicknameRegex = "^.$NAME_MIN_LENGTH,$NAME_MAX_LENGTH}$".toRegex()
+        val nicknameRegex = "^.{$NAME_MIN_LENGTH,$NAME_MAX_LENGTH}$".toRegex()
          _isNameValid.value = _nameText.value.trim().matches(nicknameRegex)
     }
 
