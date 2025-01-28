@@ -30,7 +30,6 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             val navController = rememberNavController()
-//            val coroutineScope = rememberCoroutineScope()
             IssueTalkTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),

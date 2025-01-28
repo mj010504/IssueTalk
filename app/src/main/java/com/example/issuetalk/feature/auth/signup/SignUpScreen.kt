@@ -13,13 +13,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation.Companion.keyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
@@ -146,12 +149,11 @@ fun SignUpScreen(
     val passwordCheckFocusRequester = remember { FocusRequester() }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         CenterAlignedTopAppBar(
-
             title = {
                     Row(modifier = Modifier.wrapContentSize(),
                         verticalAlignment = Alignment.CenterVertically)
@@ -186,7 +188,7 @@ fun SignUpScreen(
                 navigationIconContentColor = Color.Black,
 
             ),
-            windowInsets = WindowInsets(top = 5.dp, bottom = 0.dp),
+            windowInsets = WindowInsets(top = 0.dp, bottom = 0.dp),
             modifier = Modifier.fillMaxWidth().drawBehind {
                 drawLine(
                     color = Color.Gray,
