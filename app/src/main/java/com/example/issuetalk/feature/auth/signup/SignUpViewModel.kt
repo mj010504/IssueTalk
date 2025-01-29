@@ -1,5 +1,6 @@
 package com.example.issuetalk.feature.auth.signup
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,7 +33,7 @@ class SignUpViewModel @Inject constructor(
     val passwordText = _passwordText.asStateFlow()
 
     private val _passwordCheckText = MutableStateFlow("")
-    val passwordCheckText = _passwordText.asStateFlow()
+    val passwordCheckText = _passwordCheckText.asStateFlow()
 
     private val _isNameValid = MutableStateFlow(false)
     val isNameValid = _isNameValid.asStateFlow()
@@ -44,7 +45,7 @@ class SignUpViewModel @Inject constructor(
      val isPasswordValid = _isPasswordValid.asStateFlow()
 
     private val _isPasswordMatch = MutableStateFlow(false)
-    val isPasswordMatch = _isEmailValid.asStateFlow()
+    val isPasswordMatch = _isPasswordMatch.asStateFlow()
 
     fun setEmailText(emailText: String) {
         _emailText.value = emailText

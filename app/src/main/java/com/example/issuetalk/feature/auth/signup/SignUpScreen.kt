@@ -1,5 +1,6 @@
 package com.example.issuetalk.feature.auth.signup
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,6 +43,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -147,32 +149,38 @@ fun SignUpScreen(
     val emailFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
     val passwordCheckFocusRequester = remember { FocusRequester() }
+    val signUpAvailability =  isNameValid && isEmailValid && isPasswordValid && isPasswordMatch
 
     Column(
-        modifier = Modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()),
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding()
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         CenterAlignedTopAppBar(
             title = {
-                    Row(modifier = Modifier.wrapContentSize(),
-                        verticalAlignment = Alignment.CenterVertically)
-                    {
-                        Icon(
-                            painter = painterResource(id = R.drawable.issuetalk),
-                            contentDescription = null,
-                            tint = Color.Unspecified,
-                            modifier = Modifier
-                                .width(40.dp)
-                                .height(40.dp)
-                        )
-                        Spacer(Modifier.width(3.dp))
-                        Text(
-                            text = stringResource(id = R.string.sign_up),
-                            style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
-                            color = Color.Black
-                        )
-                    }
+                Row(
+                    modifier = Modifier.wrapContentSize(),
+                    verticalAlignment = Alignment.CenterVertically
+                )
+                {
+                    Icon(
+                        painter = painterResource(id = R.drawable.issuetalk),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .width(40.dp)
+                            .height(40.dp)
+                    )
+                    Spacer(Modifier.width(3.dp))
+                    Text(
+                        text = stringResource(id = R.string.sign_up),
+                        style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+                        color = Color.Black
+                    )
+                }
             },
             navigationIcon = {
                 IconButton(onClick = { popBackStack() }) {
@@ -187,16 +195,18 @@ fun SignUpScreen(
                 containerColor = Color.White,
                 navigationIconContentColor = Color.Black,
 
-            ),
+                ),
             windowInsets = WindowInsets(top = 0.dp, bottom = 0.dp),
-            modifier = Modifier.fillMaxWidth().drawBehind {
-                drawLine(
-                    color = Color.Gray,
-                    start = Offset(0f, size.height),
-                    end = Offset(size.width, size.height),
-                    strokeWidth = 1.dp.toPx()
-                )
-            }
+            modifier = Modifier
+                .fillMaxWidth()
+                .drawBehind {
+                    drawLine(
+                        color = Color.Gray,
+                        start = Offset(0f, size.height),
+                        end = Offset(size.width, size.height),
+                        strokeWidth = 1.dp.toPx()
+                    )
+                }
         )
 
 
@@ -347,7 +357,9 @@ fun SignUpScreen(
                 cursorColor = subColor
             ),
             value = passwordCheckText,
-            onValueChange = { onPasswordCheckChange(it) },
+            onValueChange = {
+                onPasswordCheckChange(it)
+            },
             placeholder = { Text("비밀번호를 다시 입력해주세요.", style = TextStyle(fontSize = 14.sp)) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -373,9 +385,11 @@ fun SignUpScreen(
         Spacer(Modifier.weight(1f))
         Button(
             onClick = {
-                signUp()
+                if (signUpAvailability) signUp()
             },
-            colors = ButtonDefaults.buttonColors(subColor),
+            colors = if (signUpAvailability) ButtonDefaults.buttonColors(subColor) else ButtonDefaults.buttonColors(
+                Color.Gray
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 20.dp, end = 20.dp)
