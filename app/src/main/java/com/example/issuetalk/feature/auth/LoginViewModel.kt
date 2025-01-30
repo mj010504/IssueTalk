@@ -2,16 +2,21 @@ package com.example.issuetalk.feature.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.issuetalk.core.domain.repository.auth.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-
-class LoginViewModel : ViewModel() {
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val authRepository: AuthRepository
+) : ViewModel() {
     private val _eventChannel = Channel<LoginEvent>()
     val eventChannel = _eventChannel.receiveAsFlow()
 
@@ -29,31 +34,23 @@ class LoginViewModel : ViewModel() {
         _passwordText.value = passwordText
     }
 
-    fun login() {
-        val auth = FirebaseAuth.getInstance()
-        viewModelScope.launch {
+    fun loginFirebase() = viewModelScope.launch {
             if (_emailText.value.trim().isEmpty() || _passwordText.value.trim().isEmpty()) {
                 _eventChannel.send(LoginEvent.ShowDialog(LOGIN_FIELD_EMPTY))
                 return@launch
             }
 
-            try {
-                val result =
-                    auth.signInWithEmailAndPassword(
-                        emailText.value.trim(),
-                        passwordText.value.trim()
-                    ).await()
-
-
-                if (result.user != null) {
-                    _eventChannel.send(LoginEvent.NavigateToHome)
-                }
-            } catch (e: Exception) {
+            authRepository.loginFirebase(
+                emailText.value.trim(),
+                passwordText.value.trim()
+            ).onSuccess {
+                _eventChannel.send(LoginEvent.NavigateToHome)
+            }.onFailure {
                 _eventChannel.send(LoginEvent.ShowDialog(LOGIN_ERROR))
             }
 
         }
-    }
+
 
     fun navigateToSignUp() {
         viewModelScope.launch {

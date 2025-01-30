@@ -32,14 +32,14 @@ fun IssueTalkNavHost(
             navigateToLogin = {
                 navController.navigateToLogin(
                     navOptions {
-                        popUpTo<LoginRoute> { inclusive = true }
+                        popUpTo<SplashRoute> { inclusive = true }
                     }
                 )
             },
             navigateToHome = {
                 navController.navigateToHome(
                     navOptions {
-                        popUpTo<HomeRoute> { inclusive = true }
+                        popUpTo<SplashRoute> { inclusive = true }
                     }
                 )
             }
@@ -51,7 +51,7 @@ fun IssueTalkNavHost(
             navigateToHome = {
                 navController.navigateToHome(
                     navOptions {
-                        popUpTo<HomeRoute> { inclusive = true }
+                        popUpTo<LoginRoute> { inclusive = true }
                     }
                 )
             }

@@ -14,5 +14,4 @@ data class Subject(
     val subjectField : String = "",
     val date : String = " ",
     val timestamp : Timestamp = Timestamp.now()
-
 )

@@ -22,7 +22,6 @@ fun NavGraphBuilder.signUpScreen(
         SignUpRoute(
             navigateToWelcome = navigateToWelcome,
             popBackStack = popBackStack
-
         )
     }
 }

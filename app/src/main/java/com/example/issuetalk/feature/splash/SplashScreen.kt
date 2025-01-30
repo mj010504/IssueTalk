@@ -41,8 +41,9 @@ fun SplashScreen(
 
     LaunchedEffect(true) {
         delay(500)
-        if(user == null) navigateToLogin()
-        else navigateToHome()
+        navigateToLogin()
+//        if(user == null) navigateToLogin()
+//        else navigateToHome()
     }
 
     Column (

@@ -50,6 +50,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.issuetalk.feature.auth.LoginViewModel.LoginEvent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -64,7 +65,7 @@ import com.example.issuetalk.core.designsystem.theme.subColor
 fun LoginRoute(
     navigateToHome: () -> Unit,
     navigateToSignUp: () -> Unit,
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = hiltViewModel()
 ) {
     val emailText by viewModel.emailText.collectAsStateWithLifecycle()
     val passwordText by viewModel.passwordText.collectAsStateWithLifecycle()
@@ -85,7 +86,7 @@ fun LoginRoute(
         passwordText,
         onEmailTextChanged = viewModel::setEmailText,
         onPasswordTextChanged = viewModel::setPasswordText,
-        login = viewModel::login,
+        loginFireabase = viewModel::loginFirebase,
         navigateToSignUp = viewModel::navigateToSignUp,
         navigateToHome = viewModel::navigateToHome
     )
@@ -104,7 +105,7 @@ fun LoginScreen(
     passwordText: String,
     onEmailTextChanged: (String) -> Unit,
     onPasswordTextChanged: (String) -> Unit,
-    login: () -> Unit,
+    loginFireabase: () -> Unit,
     navigateToSignUp: () -> Unit,
     navigateToHome: () -> Unit,
 ) {
@@ -140,6 +141,7 @@ fun LoginScreen(
             value = emailText,
             onValueChange = { onEmailTextChanged(it) },
             textStyle = TextStyle(fontSize = 14.sp),
+            maxLines = 1,
             placeholder = { Text("이메일", style = TextStyle(fontSize = 14.sp)) },
             trailingIcon = {
                 Icon(
@@ -186,7 +188,7 @@ fun LoginScreen(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done
             ),
-            keyboardActions = KeyboardActions(onDone = { login() }),
+            keyboardActions = KeyboardActions(onDone = { loginFireabase() }),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 34.dp)
@@ -220,7 +222,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
         Button(
-            onClick = login,
+            onClick = loginFireabase,
             colors = ButtonDefaults.buttonColors(primaryColor),
             modifier = Modifier
                 .fillMaxWidth()
