@@ -67,6 +67,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.issuetalk.R
@@ -80,7 +81,7 @@ import com.example.issuetalk.core.designsystem.theme.topBarColor
 fun SignUpRoute(
     navigateToWelcome: () -> Unit,
     popBackStack: () -> Unit,
-    viewModel: SignUpViewModel = viewModel()
+    viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val emailText by viewModel.emailText.collectAsStateWithLifecycle()
     val nameText by viewModel.nameText.collectAsStateWithLifecycle()
@@ -111,7 +112,7 @@ fun SignUpRoute(
         isEmailValid,
         isPasswordValid,
         isPasswordMatch,
-        viewModel::signUp,
+        viewModel::signUpFirebase,
         viewModel::setEmailText,
         viewModel::setNameText,
         viewModel::setPasswordText,

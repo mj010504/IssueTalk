@@ -1,25 +1,20 @@
 package com.example.issuetalk.feature.auth.signup
 
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.issuetalk.feature.auth.LoginViewModel.LoginEvent
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
-import com.google.firebase.auth.userProfileChangeRequest
+import androidx.lifecycle.viewModelScope
+import com.example.issuetalk.core.domain.repository.auth.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class SignUpViewModel @Inject constructor(
-
-): ViewModel() {
+    private val authRepository: AuthRepository
+) : ViewModel() {
     private val _eventChannel = Channel<SignUpEvent>()
     val eventChannel = _eventChannel.receiveAsFlow()
 
@@ -87,29 +82,16 @@ class SignUpViewModel @Inject constructor(
         _isPasswordMatch.value = _passwordText.value.trim() == _passwordCheckText.value.trim()
     }
 
-    fun signUp() {
-//        val auth = FirebaseAuth.getInstance()
-//        auth.createUserWithEmailAndPassword(emailText, pwText)
-//            .addOnCompleteListener { task ->
-//                if (task.isSuccessful) {
-//                    // 회원가입 성공
-//
-//                    val user = Firebase.auth.currentUser
-//
-//                    val profileUpdates = userProfileChangeRequest {
-//                        displayName = _nameText.value
-//                    }
-//
-//                    user!!.updateProfile(profileUpdates)
-//                        .addOnCompleteListener { task ->
-//                            if (task.isSuccessful) {
-//                                _eventChannel.send(SignUpEvent.NavigateToWelcome)
-//                            }
-//                        }
-//
-//
-//                }
-//            }
+    fun signUpFirebase() = viewModelScope.launch {
+        authRepository.signUpFirebase(
+            _emailText.value.trim(),
+            _passwordText.value.trim(),
+            _nameText.value.trim()
+        ).onSuccess {
+            _eventChannel.send(SignUpEvent.NavigateToWelcome)
+        }.onFailure {
+            _eventChannel.send(SignUpEvent.ShowDialog(SIGNUP_ERROR))
+        }
     }
 
     sealed class SignUpEvent {
@@ -123,6 +105,7 @@ class SignUpViewModel @Inject constructor(
         private const val PASSWORD_MIN_LENGTH = 8
         private const val PASSWORD_MAX_LENGTH = 16
         private const val SIGNUP_ERROR = "회원가입에 실패했습니다"
+        private const val DUPLICATED_EMAIL = "이미 존재하는 이메일 입니다"
     }
 
 

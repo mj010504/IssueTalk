@@ -3,14 +3,12 @@ package com.example.issuetalk.feature.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.issuetalk.core.domain.repository.auth.AuthRepository
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,8 +39,8 @@ class LoginViewModel @Inject constructor(
             }
 
             authRepository.loginFirebase(
-                emailText.value.trim(),
-                passwordText.value.trim()
+                _emailText.value.trim(),
+                _passwordText.value.trim()
             ).onSuccess {
                 _eventChannel.send(LoginEvent.NavigateToHome)
             }.onFailure {
