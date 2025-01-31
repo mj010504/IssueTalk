@@ -32,42 +32,39 @@ fun IssueTalkNavHost(
             navigateToLogin = {
                 navController.navigateToLogin(
                     navOptions {
-                        popUpTo<LoginRoute> { inclusive = true }
+                        popUpTo<SplashRoute> { inclusive = true }
                     }
                 )
             },
             navigateToHome = {
                 navController.navigateToHome(
                     navOptions {
-                        popUpTo<HomeRoute> { inclusive = true }
+                        popUpTo<SplashRoute> { inclusive = true }
                     }
                 )
             }
         )
         loginScreen(
             navigateToSignUp = {
-                navController.navigateToSignUp(
-                    navOptions {
-                        popUpTo<LoginRoute> { inclusive = true }
-                    }
-                )
+                navController.navigateToSignUp()
             },
             navigateToHome = {
                 navController.navigateToHome(
                     navOptions {
-                        popUpTo<HomeRoute> { inclusive = true }
+                        popUpTo<LoginRoute> { inclusive = true }
                     }
                 )
             }
         )
         signUpScreen(
-            navigateToHome = {
-                navController.navigateToHome(
-                    navOptions {
-                        popUpTo<HomeRoute> { inclusive = true }
-                    }
-                )
-            }
+            navigateToWelcome = {
+//                navController.navigateToHome(
+//                    navOptions {
+//                        popUpTo<HomeRoute> { inclusive = true }
+//                    }
+//                )
+            },
+            popBackStack = { navController.popBackStack() }
         )
         homeScreen(
 
