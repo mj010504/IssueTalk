@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,11 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.BottomSheetValue
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberBottomSheetState
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -35,9 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
-
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -45,6 +39,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,11 +67,15 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.issuetalk.R
+import com.example.issuetalk.core.common.util.clickWithNoneRipple
+import com.example.issuetalk.core.common.util.clickWithRipple
 import com.example.issuetalk.core.designsystem.component.checkDialog
 import com.example.issuetalk.core.designsystem.theme.lightRed
 import com.example.issuetalk.core.designsystem.theme.primaryColor
 import com.example.issuetalk.core.designsystem.theme.subColor
 import com.example.issuetalk.feature.auth.signup.SignUpViewModel.Gender
+import com.example.issuetalk.feature.auth.signup.component.BirthYearPicker
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -126,19 +125,18 @@ fun SignUpScreen(
     nameText: String,
     isNameValid: Boolean,
     gender: Gender?,
-    birthYear : String,
-    onBirthYearChange : (String) -> Unit,
+    birthYear: String,
+    onBirthYearChange: (String) -> Unit,
     onGenderChange: (Gender) -> Unit,
     onNameChange: (String) -> Unit,
     signUp: () -> Unit,
 ) {
-
+    val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
     var showBottomBirthYearSheet by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState()
+    val bottomSheetState = rememberModalBottomSheetState()
+    val signUpAvailability = isNameValid && gender != null && birthYear.isNotEmpty()
 
-
-    val signUpAvailability = isNameValid && gender != null
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -198,14 +196,14 @@ fun SignUpScreen(
 
                 withStyle(
                     style = SpanStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.ExtraLight,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
                         color = primaryColor
                     )
                 ) {
                     append("이슈토크")
                 }
-                withStyle(style = SpanStyle(fontSize = 16.sp, fontWeight = FontWeight.ExtraLight)) {
+                withStyle(style = SpanStyle(fontSize = 17.sp, fontWeight = FontWeight.ExtraLight)) {
                     append("에서 당신의 다양한 생각을 공유해주세요.")
                 }
             },
@@ -221,7 +219,7 @@ fun SignUpScreen(
         OutlinedTextField(
             value = nameText,
             onValueChange = { onNameChange(it) },
-            placeholder = { Text("이름을 입력해주세요", style = TextStyle(fontSize = 14.sp)) },
+            placeholder = { Text("이름을 입력해주세요", style = TextStyle(fontSize = 14.sp), color = Color.Gray) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)
@@ -269,18 +267,22 @@ fun SignUpScreen(
                     contentDescription = "남자",
                     modifier = Modifier
                         .size(120.dp)
-                        .clickable {
+                        .clickWithNoneRipple {
                             onGenderChange(Gender.MALE)
                         },
-                    colorFilter = if (gender != Gender.MALE)  ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) }) else null
+                    colorFilter = if (gender != Gender.MALE) ColorFilter.colorMatrix(ColorMatrix().apply {
+                        setToSaturation(
+                            0f
+                        )
+                    }) else null
 
 
                 )
                 Spacer(Modifier.height(8.dp))
-              Text(
+                Text(
                     "남자",
                     style = TextStyle(fontSize = 16.sp),
-                  color = if(gender == Gender.MALE) Color.Black else Color.Gray
+                    color = if (gender == Gender.MALE) Color.Black else Color.Gray
                 )
             }
 
@@ -292,16 +294,20 @@ fun SignUpScreen(
                     contentDescription = "여자",
                     modifier = Modifier
                         .size(120.dp)
-                        .clickable {
+                        .clickWithNoneRipple {
                             onGenderChange(Gender.FEMALE)
                         },
-                    colorFilter = if (gender != Gender.FEMALE) ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) }) else null
+                    colorFilter = if (gender != Gender.FEMALE) ColorFilter.colorMatrix(ColorMatrix().apply {
+                        setToSaturation(
+                            0f
+                        )
+                    }) else null
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
                     "여자",
                     style = TextStyle(fontSize = 16.sp),
-                    color = if(gender == Gender.FEMALE) Color.Black else Color.Gray
+                    color = if (gender == Gender.FEMALE) Color.Black else Color.Gray
                 )
             }
 
@@ -318,8 +324,8 @@ fun SignUpScreen(
         OutlinedTextField(
             value = birthYear,
             singleLine = true,
-            readOnly = true,
-            onValueChange = {  },
+            enabled = false,
+            onValueChange = { },
             placeholder = { Text("출생연도를 입력해주세요", style = TextStyle(fontSize = 14.sp)) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -331,10 +337,10 @@ fun SignUpScreen(
             maxLines = 1,
             textStyle = TextStyle(fontSize = 14.sp),
             colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.White,
-                focusedContainerColor = Color.White,
-                focusedIndicatorColor = subColor,
-                unfocusedIndicatorColor = Color.Gray
+                disabledContainerColor = Color.White,
+                disabledIndicatorColor = Color.Gray,
+                disabledPlaceholderColor = Color.Gray,
+                disabledTextColor = Color.Black
             ),
         )
 
@@ -346,10 +352,10 @@ fun SignUpScreen(
             colors = if (signUpAvailability) ButtonDefaults.buttonColors(subColor) else ButtonDefaults.buttonColors(
                 Color.Gray
             ),
+            shape = RoundedCornerShape(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 20.dp, end = 20.dp)
-                .clip(RoundedCornerShape(4.dp))
         ) {
             Text(
                 stringResource(id = R.string.sign_up_finish),
@@ -360,15 +366,58 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(60.dp))
     }
 
+    if (showBottomBirthYearSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomBirthYearSheet = false },
+            sheetState = bottomSheetState,
+            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+            containerColor = Color.White,
+            dragHandle = null
+        ) {
+            Column(
+                modifier = Modifier.padding(top = 25.dp, bottom = 8.dp, start = 20.dp, end =20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("출생연도를 선택해 주세요", style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.SemiBold))
+                Spacer(Modifier.height(10.dp))
+                BirthYearPicker(onBirthYearChange = onBirthYearChange, startYear = birthYear)
+                Spacer(Modifier.height(20.dp))
+                Box(
+                    modifier  = Modifier.fillMaxWidth()
+                ) {
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                bottomSheetState.hide()
+                            }
+                            showBottomBirthYearSheet = false
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(subColor),
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .height(35.dp)
+                    ) {
+                        Text(
+                            "완료",
+                            color = Color.White,
+                            style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                        )
+                    }
+                }
+                Spacer(Modifier.height(25.dp))
+
+            }
+        }
+    }
 }
 
 
-
-@Preview(showBackground = true)
-@Composable
-fun SignUpPreview() {
-    SignUpScreen("", false, Gender.FEMALE, "", {}, {}, {}, {})
-}
+    @Preview(showBackground = true)
+    @Composable
+    fun SignUpPreview() {
+        SignUpScreen("", false, Gender.FEMALE, "", {}, {}, {}, {})
+    }
 
 
 
