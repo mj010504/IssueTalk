@@ -18,37 +18,9 @@ class LoginViewModel @Inject constructor(
     private val _eventChannel = Channel<LoginEvent>()
     val eventChannel = _eventChannel.receiveAsFlow()
 
-    private val _emailText = MutableStateFlow("")
-    val emailText = _emailText.asStateFlow()
-
-    private val _passwordText = MutableStateFlow("")
-    val passwordText = _passwordText.asStateFlow()
-
-    fun setEmailText(emailText: String) {
-        _emailText.value = emailText
-    }
-
-    fun setPasswordText(passwordText: String) {
-        _passwordText.value = passwordText
-    }
-
-    fun loginFirebase() = viewModelScope.launch {
-            if (_emailText.value.trim().isEmpty() || _passwordText.value.trim().isEmpty()) {
-                _eventChannel.send(LoginEvent.ShowDialog(LOGIN_FIELD_EMPTY))
-                return@launch
-            }
-
-            authRepository.loginFirebase(
-                _emailText.value.trim(),
-                _passwordText.value.trim()
-            ).onSuccess {
-                _eventChannel.send(LoginEvent.NavigateToHome)
-            }.onFailure {
-                _eventChannel.send(LoginEvent.ShowDialog(LOGIN_ERROR))
-            }
+    fun loginKakao() = viewModelScope.launch {
 
         }
-
 
     fun navigateToSignUp() {
         viewModelScope.launch {
@@ -69,8 +41,7 @@ class LoginViewModel @Inject constructor(
     }
 
     companion object {
-        private const val LOGIN_FIELD_EMPTY = "아이디와 비밀번호를 입력해주세요."
-        private const val LOGIN_ERROR = "아이디와 비밀번호가 일치하지 않습니다."
+        private const val LOGIN_ERROR = "로그인에 실패했습니다."
     }
 
 

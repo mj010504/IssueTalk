@@ -15,13 +15,11 @@ fun NavController.navigateToSignUp(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.signUpScreen(
-    navigateToWelcome: () -> Unit,
-    popBackStack: () -> Unit
+    navigateToHome: () -> Unit,
 ) {
     composable<SignUpRoute> {
         SignUpRoute(
-            navigateToWelcome = navigateToWelcome,
-            popBackStack = popBackStack
+            navigateToHome = navigateToHome,
         )
     }
 }

@@ -1,6 +1,7 @@
 package com.example.issuetalk.feature.splash
 
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,8 +53,7 @@ fun SplashScreen(
         verticalArrangement = Arrangement.Center
     ) {
 
-        Icon(painter =  painterResource(id = R.drawable.issuetalk), contentDescription = null,
-            tint =  Color.Unspecified)
+        Image(painter =  painterResource(id = R.drawable.issuetalk), contentDescription = null)
         Text(text = stringResource(R.string.app_name), modifier = Modifier.padding(top = 45.dp),
             style = TextStyle(fontSize = 50.sp, fontFamily= FontFamily(Font(R.font.app_title)))
         )

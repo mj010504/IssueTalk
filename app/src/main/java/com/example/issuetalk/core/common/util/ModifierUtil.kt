@@ -15,3 +15,11 @@ fun Modifier.clickWithRipple(onClick : () -> Unit) : Modifier = composed {
         onClick = onClick
     )
 }
+
+fun Modifier.clickWithNoneRipple(onClick: () -> Unit) : Modifier = composed {
+    this.clickable (
+        interactionSource = remember { MutableInteractionSource() },
+        indication = null,
+        onClick = onClick
+    )
+}

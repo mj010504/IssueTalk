@@ -9,19 +9,16 @@ import javax.inject.Inject
 class AuthDataSource @Inject constructor(
     private val firebaseAuth: FirebaseAuth
 ) {
-    suspend fun loginFirebase(email: String, password: String): Result<Unit> = runCatching {
-        firebaseAuth.signInWithEmailAndPassword(
-            email,
-            password
-        ).await()
+    suspend fun loginKakao(): Result<Unit> = runCatching {
     }
 
-    suspend fun signUpFirebase(email: String, password: String, name: String): Result<Unit> = runCatching {
-        firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            val user = firebaseAuth.currentUser
-            val profileUpdates = userProfileChangeRequest {
-                displayName = name
-            }
-            user!!.updateProfile(profileUpdates).await()
-        }
+    suspend fun signUp(): Result<Unit> = runCatching {
+//        firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+//            val user = firebaseAuth.currentUser
+//            val profileUpdates = userProfileChangeRequest {
+//                displayName = name
+//            }
+//            user!!.updateProfile(profileUpdates).await()
+//        }
+    }
 }

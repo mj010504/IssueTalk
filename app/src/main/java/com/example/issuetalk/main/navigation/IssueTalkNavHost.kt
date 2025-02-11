@@ -9,6 +9,7 @@ import androidx.navigation.navOptions
 import com.example.issuetalk.feature.auth.navigation.LoginRoute
 import com.example.issuetalk.feature.auth.navigation.loginScreen
 import com.example.issuetalk.feature.auth.navigation.navigateToLogin
+import com.example.issuetalk.feature.auth.signup.navigation.SignUpRoute
 import com.example.issuetalk.feature.auth.signup.navigation.navigateToSignUp
 import com.example.issuetalk.feature.auth.signup.navigation.signUpScreen
 import com.example.issuetalk.feature.home.navigation.HomeRoute
@@ -46,7 +47,11 @@ fun IssueTalkNavHost(
         )
         loginScreen(
             navigateToSignUp = {
-                navController.navigateToSignUp()
+                navController.navigateToSignUp(
+//                    navOptions {
+//                        popUpTo<LoginRoute> { inclusive = true }
+//                    }
+                )
             },
             navigateToHome = {
                 navController.navigateToHome(
@@ -57,14 +62,14 @@ fun IssueTalkNavHost(
             }
         )
         signUpScreen(
-            navigateToWelcome = {
-//                navController.navigateToHome(
-//                    navOptions {
-//                        popUpTo<HomeRoute> { inclusive = true }
-//                    }
-//                )
+            navigateToHome = {
+                navController.navigateToHome(
+                    navOptions {
+                        popUpTo<SignUpRoute> { inclusive = true }
+                    }
+                )
             },
-            popBackStack = { navController.popBackStack() }
+
         )
         homeScreen(
 
