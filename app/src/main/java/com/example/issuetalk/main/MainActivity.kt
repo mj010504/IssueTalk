@@ -1,6 +1,7 @@
 package com.example.issuetalk.main
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,6 +18,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.issuetalk.core.designsystem.theme.IssueTalkTheme
 import com.example.issuetalk.main.navigation.IssueTalkNavHost
+import com.kakao.sdk.common.KakaoSdk
+import com.kakao.sdk.common.util.Utility
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -25,6 +28,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        KakaoSdk.init(this, "ccecf62a10b57cf137be324f5ab43f39")
 
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)

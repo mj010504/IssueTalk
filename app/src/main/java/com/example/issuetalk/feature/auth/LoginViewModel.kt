@@ -1,8 +1,14 @@
 package com.example.issuetalk.feature.auth
 
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.issuetalk.core.domain.repository.auth.AuthRepository
+import com.kakao.sdk.auth.model.OAuthToken
+import com.kakao.sdk.common.model.ClientError
+import com.kakao.sdk.common.model.ClientErrorCause
+import com.kakao.sdk.user.UserApiClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,13 +20,11 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository
+
 ) : ViewModel() {
     private val _eventChannel = Channel<LoginEvent>()
     val eventChannel = _eventChannel.receiveAsFlow()
 
-    fun loginKakao() = viewModelScope.launch {
-
-        }
 
     fun navigateToSignUp() {
         viewModelScope.launch {

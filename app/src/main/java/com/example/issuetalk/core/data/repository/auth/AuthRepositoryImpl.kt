@@ -7,8 +7,6 @@ import javax.inject.Inject
 class AuthRepositoryImpl @Inject constructor(
     private val authDataSource: AuthDataSource
 ) : AuthRepository {
-    override suspend fun loginKakao(): Result<Unit> = authDataSource.loginKakao()
     override suspend fun signUp(): Result<Unit> = authDataSource.signUp()
-
 
 }

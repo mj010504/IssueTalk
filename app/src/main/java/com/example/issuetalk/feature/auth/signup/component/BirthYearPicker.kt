@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
@@ -46,7 +47,7 @@ fun BirthYearPicker(
     startYear : String,
     visibleItemsCount: Int = 3,
     textModifier: Modifier = Modifier,
-    textStyle: TextStyle = LocalTextStyle.current,
+//    textStyle: TextStyle = LocalTextStyle.current,
     dividerColor: Color = LocalContentColor.current,
 ) {
 
@@ -96,13 +97,14 @@ fun BirthYearPicker(
                     text = getItem(index),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    style = textStyle,
+                    style = TextStyle(fontSize = 16.sp),
                     modifier = Modifier
                         .onSizeChanged { size -> itemHeightPixels.value = size.height }
                         .then(textModifier)
                 )
             }
         }
+
 
         Divider(
             color = dividerColor,
