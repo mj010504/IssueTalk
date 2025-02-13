@@ -72,7 +72,6 @@ fun LoginRoute(
 
     LoginScreen(
         loginFirebaseWithKakao = viewModel::loginFirebaseWithKakao,
-        navigateToSignUp = viewModel::navigateToSignUp,
         navigateToHome = viewModel::navigateToHome,
         showDialog = ::showDialog
     )
@@ -88,7 +87,7 @@ fun LoginRoute(
 @Composable
 fun LoginScreen(
     loginFirebaseWithKakao: (String) -> Unit,
-    navigateToSignUp: () -> Unit,
+
     navigateToHome: () -> Unit,
     showDialog: (String) -> Unit
 ) {

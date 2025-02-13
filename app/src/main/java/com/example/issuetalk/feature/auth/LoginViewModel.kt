@@ -37,10 +37,25 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun loginFirebaseWithKakao(idToken: String) = viewModelScope.launch {
+      fun loginFirebaseWithKakao(idToken: String) = viewModelScope.launch {
         authRepository.loginFirebaseWithKakao(idToken)
             .onSuccess {
-                Log.d("로그인", "성공")
+                verifyResitered()
+            }.onFailure {
+                _eventChannel.send(LoginEvent.ShowDialog(LOGIN_ERROR))
+            }
+    }
+
+    private suspend fun verifyResitered() = viewModelScope.launch {
+        authRepository.verifyRegistered()
+            .onSuccess { isRegistered ->
+                if(isRegistered) {
+                    _eventChannel.send(LoginEvent.NavigateToHome)
+                    return@onSuccess
+                }
+
+                _eventChannel.send(LoginEvent.NavigateToSignUp)
+
             }.onFailure {
                 _eventChannel.send(LoginEvent.ShowDialog(LOGIN_ERROR))
             }
