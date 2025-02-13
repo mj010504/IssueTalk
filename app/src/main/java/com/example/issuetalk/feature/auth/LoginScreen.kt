@@ -36,6 +36,12 @@ import com.example.issuetalk.feature.auth.LoginViewModel.LoginEvent
 import com.example.issuetalk.R
 import com.example.issuetalk.core.common.util.clickWithRipple
 import com.example.issuetalk.core.designsystem.component.checkDialog
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.OAuthProvider
+import com.google.firebase.auth.auth
+import com.google.firebase.auth.oAuthCredential
+import com.kakao.sdk.auth.AuthApiClient
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
@@ -50,7 +56,7 @@ fun LoginRoute(
 ) {
     var dialogMessage by remember { mutableStateOf<String?>(null) }
 
-    fun showDialog(message : String) {
+    fun showDialog(message: String) {
         dialogMessage = message
     }
 
@@ -65,6 +71,7 @@ fun LoginRoute(
     }
 
     LoginScreen(
+        loginFirebaseWithKakao = viewModel::loginFirebaseWithKakao,
         navigateToSignUp = viewModel::navigateToSignUp,
         navigateToHome = viewModel::navigateToHome,
         showDialog = ::showDialog
@@ -80,9 +87,10 @@ fun LoginRoute(
 
 @Composable
 fun LoginScreen(
+    loginFirebaseWithKakao: (String) -> Unit,
     navigateToSignUp: () -> Unit,
     navigateToHome: () -> Unit,
-    showDialog : (String) -> Unit
+    showDialog: (String) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -106,13 +114,16 @@ fun LoginScreen(
             style = TextStyle(fontSize = 48.sp, fontFamily = FontFamily(Font(R.font.app_title)))
         )
         Spacer(modifier = Modifier.height(15.dp))
-        Text("같은 이슈, 다른 생각, 새로운 시각", style = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.SemiBold))
+        Text(
+            "같은 이슈, 다른 생각, 새로운 시각",
+            style = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+        )
         Spacer(modifier = Modifier.height(60.dp))
         Image(
             painter = painterResource(R.drawable.kakao_login),
             contentDescription = "카카오 로그인",
             modifier = Modifier.clickWithRipple {
-                loginKakao(context, showDialog)
+                loginKakao(context, showDialog, loginFirebaseWithKakao)
             }
         )
         Spacer(Modifier.height(24.dp))
@@ -133,21 +144,23 @@ fun LoginScreen(
 
 
 private fun loginKakao(
-    context : Context,
-    showDialog: (String) -> Unit
+    context: Context,
+    showDialog: (String) -> Unit,
+    loginFirebaseWithKakao: (String) -> Unit
 ) {
     val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
         if (error != null) {
-           showDialog(error.toString())
+            showDialog("로그인에 실패했습니다" + error.toString())
         } else if (token != null) {
-            Log.d("kakao", "카카오계정으로 로그인 성공 ${token.accessToken}")
+            loginFirebaseWithKakao(token.idToken!!)
         }
+
     }
 
     if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
         UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
             if (error != null) {
-
+                showDialog("로그인에 실패했습니다." + error.toString())
                 // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
                 // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
                 if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
@@ -157,7 +170,7 @@ private fun loginKakao(
                 // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인 시도
                 UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
             } else if (token != null) {
-
+                loginFirebaseWithKakao(token.idToken!!)
             }
         }
     } else {

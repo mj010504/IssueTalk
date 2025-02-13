@@ -7,6 +7,8 @@ import javax.inject.Inject
 class AuthRepositoryImpl @Inject constructor(
     private val authDataSource: AuthDataSource
 ) : AuthRepository {
+    override suspend fun loginFirebaseWithKakao(idToken : String): Result<Unit> = authDataSource.loginFirebaseWithKakao(idToken)
+
     override suspend fun signUp(): Result<Unit> = authDataSource.signUp()
 
 }

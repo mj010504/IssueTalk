@@ -25,7 +25,6 @@ class LoginViewModel @Inject constructor(
     private val _eventChannel = Channel<LoginEvent>()
     val eventChannel = _eventChannel.receiveAsFlow()
 
-
     fun navigateToSignUp() {
         viewModelScope.launch {
             _eventChannel.send(LoginEvent.NavigateToSignUp)
@@ -36,6 +35,15 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _eventChannel.send(LoginEvent.NavigateToHome)
         }
+    }
+
+    fun loginFirebaseWithKakao(idToken: String) = viewModelScope.launch {
+        authRepository.loginFirebaseWithKakao(idToken)
+            .onSuccess {
+                Log.d("로그인", "성공")
+            }.onFailure {
+                _eventChannel.send(LoginEvent.ShowDialog(LOGIN_ERROR))
+            }
     }
 
     sealed class LoginEvent {
