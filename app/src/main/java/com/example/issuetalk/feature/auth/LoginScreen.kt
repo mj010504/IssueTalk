@@ -63,7 +63,7 @@ fun LoginRoute(
 
     LoginScreen(
         loginFirebaseWithKakao = viewModel::loginFirebaseWithKakao,
-        navigateToHome = viewModel::navigateToHome,
+        navigateToHomeWithoutLogin = viewModel::navigateToHomeWithoutLogin,
         showDialog = ::showDialog
     )
 
@@ -78,8 +78,7 @@ fun LoginRoute(
 @Composable
 fun LoginScreen(
     loginFirebaseWithKakao: (String) -> Unit,
-
-    navigateToHome: () -> Unit,
+    navigateToHomeWithoutLogin: () -> Unit,
     showDialog: (String) -> Unit
 ) {
     val context = LocalContext.current
@@ -122,7 +121,7 @@ fun LoginScreen(
             color = Color.Black,
             style = TextStyle(fontSize = 16.sp),
             modifier = Modifier.clickWithRipple {
-                navigateToHome()
+                navigateToHomeWithoutLogin()
             }
 
         )

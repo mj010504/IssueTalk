@@ -18,5 +18,4 @@ interface RepositoryModule {
         authRepositoryImpl : AuthRepositoryImpl
     ) : AuthRepository
 
-
 }

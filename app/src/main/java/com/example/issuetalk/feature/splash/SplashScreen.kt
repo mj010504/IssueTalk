@@ -6,13 +6,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -20,7 +18,10 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.issuetalk.R
+import com.example.issuetalk.feature.auth.LoginViewModel
+import com.example.issuetalk.feature.auth.LoginViewModel.LoginEvent
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
@@ -28,24 +29,27 @@ import kotlinx.coroutines.delay
  fun SplashRoute(
     navigateToLogin: () -> Unit,
     navigateToHome: () -> Unit,
+    viewModel: SplashViewModel = hiltViewModel()
 ) {
-    SplashScreen(navigateToLogin, navigateToHome)
+    LaunchedEffect(true) {
+        viewModel.checkShowHome()
+        viewModel.eventChannel.collect { event ->
+            when (event) {
+                is SplashViewModel.SplashEvent.NavigateToHome -> navigateToHome()
+                is SplashViewModel.SplashEvent.NavigateToLogin -> navigateToLogin()
+            }
+        }
+    }
+
+    SplashScreen()
 }
 
 @Composable
 fun SplashScreen(
-    navigateToLogin: () -> Unit,
-    navigateToHome: () -> Unit,
-) {
-    val auth = FirebaseAuth.getInstance()
-    val user = auth.currentUser
 
-    LaunchedEffect(true) {
-        delay(500)
-        navigateToLogin()
-//        if(user == null) navigateToLogin()
-//        else navigateToHome()
-    }
+) {
+
+
 
     Column (
         modifier = Modifier.fillMaxSize(),

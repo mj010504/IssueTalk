@@ -10,4 +10,6 @@ interface AuthRepository {
     suspend fun getUserInformation() : Result<UserInformationResponse>
     suspend fun setUserInformation(userInformationRequest: UserInformationRequest) : Result<Unit>
     suspend fun deleteUserInformation() : Result<Unit>
+    fun saveShowHome()
+    fun getShowHome() : Boolean
 }

@@ -76,8 +76,3 @@ class AuthDataSource @Inject constructor(
 
 }
 
-fun getUserId() : String {
-    val auth = Firebase.auth
-    return requireNotNull(auth.currentUser?.uid)
-}
-

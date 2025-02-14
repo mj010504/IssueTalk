@@ -25,13 +25,12 @@ class LoginViewModel @Inject constructor(
     private val _eventChannel = Channel<LoginEvent>()
     val eventChannel = _eventChannel.receiveAsFlow()
 
-    fun navigateToHome() {
-        viewModelScope.launch {
-            _eventChannel.send(LoginEvent.NavigateToHome)
-        }
+     fun navigateToHomeWithoutLogin() = viewModelScope.launch {
+         authRepository.saveShowHome()
+        _eventChannel.send(LoginEvent.NavigateToHome)
     }
 
-      fun loginFirebaseWithKakao(idToken: String) = viewModelScope.launch {
+    fun loginFirebaseWithKakao(idToken: String) = viewModelScope.launch {
         authRepository.loginFirebaseWithKakao(idToken)
             .onSuccess {
                 verifyResitered()
@@ -43,7 +42,8 @@ class LoginViewModel @Inject constructor(
     private suspend fun verifyResitered() = viewModelScope.launch {
         authRepository.verifyRegistered()
             .onSuccess { isRegistered ->
-                if(isRegistered) {
+                if (isRegistered) {
+                    authRepository.saveShowHome()
                     _eventChannel.send(LoginEvent.NavigateToHome)
                     return@onSuccess
                 }
@@ -51,7 +51,7 @@ class LoginViewModel @Inject constructor(
                 _eventChannel.send(LoginEvent.NavigateToSignUp)
 
             }.onFailure {
-              _eventChannel.send(LoginEvent.LoginError(LOGIN_ERROR))
+                _eventChannel.send(LoginEvent.LoginError(LOGIN_ERROR))
             }
     }
 

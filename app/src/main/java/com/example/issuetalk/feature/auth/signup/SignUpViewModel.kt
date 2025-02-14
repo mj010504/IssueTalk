@@ -20,7 +20,6 @@ class SignUpViewModel @Inject constructor(
     private val _eventChannel = Channel<SignUpEvent>()
     val eventChannel = _eventChannel.receiveAsFlow()
 
-
     private val _nameText = MutableStateFlow("")
     val nameText = _nameText.asStateFlow()
 
@@ -60,7 +59,10 @@ class SignUpViewModel @Inject constructor(
         )
 
         authRepository.setUserInformation(userInformationRequest)
-            .onSuccess { _eventChannel.send(SignUpEvent.SignUpSuccess) }
+            .onSuccess {
+                authRepository.saveShowHome()
+                _eventChannel.send(SignUpEvent.SignUpSuccess)
+            }
             .onFailure { _eventChannel.send(SignUpEvent.SignUpFailure(SIGNUP_ERROR)) }
     }
 
