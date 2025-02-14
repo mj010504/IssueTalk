@@ -25,12 +25,6 @@ class LoginViewModel @Inject constructor(
     private val _eventChannel = Channel<LoginEvent>()
     val eventChannel = _eventChannel.receiveAsFlow()
 
-    fun navigateToSignUp() {
-        viewModelScope.launch {
-            _eventChannel.send(LoginEvent.NavigateToSignUp)
-        }
-    }
-
     fun navigateToHome() {
         viewModelScope.launch {
             _eventChannel.send(LoginEvent.NavigateToHome)
@@ -42,7 +36,7 @@ class LoginViewModel @Inject constructor(
             .onSuccess {
                 verifyResitered()
             }.onFailure {
-                _eventChannel.send(LoginEvent.ShowDialog(LOGIN_ERROR))
+                _eventChannel.send(LoginEvent.LoginError(LOGIN_ERROR))
             }
     }
 
@@ -57,14 +51,14 @@ class LoginViewModel @Inject constructor(
                 _eventChannel.send(LoginEvent.NavigateToSignUp)
 
             }.onFailure {
-                _eventChannel.send(LoginEvent.ShowDialog(LOGIN_ERROR))
+              _eventChannel.send(LoginEvent.LoginError(LOGIN_ERROR))
             }
     }
 
     sealed class LoginEvent {
         data object NavigateToSignUp : LoginEvent()
         data object NavigateToHome : LoginEvent()
-        data class ShowDialog(val message: String) : LoginEvent()
+        data class LoginError(val message: String) : LoginEvent()
     }
 
     companion object {

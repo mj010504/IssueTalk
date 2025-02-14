@@ -1,8 +1,10 @@
 package com.example.issuetalk.feature.auth.signup
 
+import UserInformationRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.issuetalk.core.domain.repository.auth.AuthRepository
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +27,7 @@ class SignUpViewModel @Inject constructor(
     private val _isNameValid = MutableStateFlow(false)
     val isNameValid = _isNameValid.asStateFlow()
 
-    private val _gender : MutableStateFlow<Gender?> = MutableStateFlow(null)
+    private val _gender: MutableStateFlow<Gender> = MutableStateFlow(Gender.NONE)
     val gender = _gender.asStateFlow()
 
     private val _birthYear = MutableStateFlow("")
@@ -36,27 +38,35 @@ class SignUpViewModel @Inject constructor(
         validateName()
     }
 
-    fun setGender(gender : Gender) {
+    fun setGender(gender: Gender) {
         _gender.value = gender
     }
 
-    fun setBirthYear(birthYear : String) {
+    fun setBirthYear(birthYear: String) {
         _birthYear.value = birthYear;
     }
 
     private fun validateName() {
         val nicknameRegex = "^.{$NAME_MIN_LENGTH,$NAME_MAX_LENGTH}$".toRegex()
-         _isNameValid.value = _nameText.value.trim().matches(nicknameRegex)
+        _isNameValid.value = _nameText.value.trim().matches(nicknameRegex)
     }
 
 
     fun signUp() = viewModelScope.launch {
+        val userInformationRequest = UserInformationRequest(
+            name = _nameText.value,
+            gender = _gender.value.gender,
+            birthYear = _birthYear.value.toInt()
+        )
 
+        authRepository.setUserInformation(userInformationRequest)
+            .onSuccess { _eventChannel.send(SignUpEvent.SignUpSuccess) }
+            .onFailure { _eventChannel.send(SignUpEvent.SignUpFailure(SIGNUP_ERROR)) }
     }
 
     sealed class SignUpEvent {
-        data object  NavigateToHome : SignUpEvent()
-        data class ShowDialog(val message: String) : SignUpEvent()
+        data object SignUpSuccess : SignUpEvent()
+        data class SignUpFailure(val message: String) : SignUpEvent()
     }
 
     companion object {
@@ -66,8 +76,7 @@ class SignUpViewModel @Inject constructor(
     }
 
     enum class Gender(val gender: String) {
-      MALE("남자"), FEMALE("여자")
+        NONE("선택 안함"), MALE("남자"), FEMALE("여자")
     }
-
 
 }

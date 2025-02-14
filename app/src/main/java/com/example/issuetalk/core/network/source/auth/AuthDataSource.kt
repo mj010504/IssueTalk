@@ -3,9 +3,12 @@ package com.example.issuetalk.core.network.source.auth
 
 import UserInformationRequest
 import UserInformationResponse
+import com.example.issuetalk.core.network.constant.OIDC_KAKAO_PROVIDER_ID
 import com.google.firebase.firestore.toObject
 import com.example.issuetalk.core.network.constant.USER_INFORMATION_COLLECTION
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.auth.oAuthCredential
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -21,8 +24,7 @@ class AuthDataSource @Inject constructor(
 
     fun loginFirebaseWithKakao(idToken : String) : Result<Unit> = runCatching {
         UserApiClient.instance.accessTokenInfo { accessTokenInfo, error ->
-            val providerId = "oidc.kakao"
-            val credential = oAuthCredential(providerId) {
+            val credential = oAuthCredential(OIDC_KAKAO_PROVIDER_ID) {
                 setIdToken(idToken)
             }
 
@@ -72,6 +74,10 @@ class AuthDataSource @Inject constructor(
             .await()
     }
 
-
-
 }
+
+fun getUserId() : String {
+    val auth = Firebase.auth
+    return requireNotNull(auth.currentUser?.uid)
+}
+

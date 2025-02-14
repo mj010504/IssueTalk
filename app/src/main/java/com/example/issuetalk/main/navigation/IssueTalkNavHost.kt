@@ -48,17 +48,13 @@ fun IssueTalkNavHost(
         loginScreen(
             navigateToSignUp = {
                 navController.navigateToSignUp(
-//                    navOptions {
-//                        popUpTo<LoginRoute> { inclusive = true }
-//                    }
-                )
-            },
-            navigateToHome = {
-                navController.navigateToHome(
                     navOptions {
                         popUpTo<LoginRoute> { inclusive = true }
                     }
                 )
+            },
+            navigateToHome = {
+                navController.navigateToHome()
             }
         )
         signUpScreen(
