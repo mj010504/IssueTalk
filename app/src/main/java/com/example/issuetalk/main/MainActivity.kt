@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        KakaoSdk.init(this, "ccecf62a10b57cf137be324f5ab43f39")
+
 
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
