@@ -22,15 +22,11 @@ class AuthDataSource @Inject constructor(
     private val firebaseFireStore : FirebaseFirestore
 ) {
 
-    fun loginFirebaseWithKakao(idToken : String) : Result<Unit> = runCatching {
-        UserApiClient.instance.accessTokenInfo { accessTokenInfo, error ->
+    suspend fun loginFirebaseWithKakao(idToken : String) : Result<Unit> = runCatching {
             val credential = oAuthCredential(OIDC_KAKAO_PROVIDER_ID) {
                 setIdToken(idToken)
             }
-
-            firebaseAuth.signInWithCredential(credential)
-
-        }
+            firebaseAuth.signInWithCredential(credential).await()
     }
 
     suspend fun verifyRegistered() : Result<Boolean> = runCatching {

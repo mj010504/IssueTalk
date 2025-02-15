@@ -63,7 +63,7 @@ fun LoginRoute(
 
     LoginScreen(
         loginFirebaseWithKakao = viewModel::loginFirebaseWithKakao,
-        navigateToHomeWithoutLogin = viewModel::navigateToHomeWithoutLogin,
+        navigateToHomeWithoutLogin  = viewModel::navigateToHomeWithoutLogin,
         showDialog = ::showDialog
     )
 

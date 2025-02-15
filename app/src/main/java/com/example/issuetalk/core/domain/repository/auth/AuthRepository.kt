@@ -12,4 +12,5 @@ interface AuthRepository {
     suspend fun deleteUserInformation() : Result<Unit>
     fun saveShowHome()
     fun getShowHome() : Boolean
+    fun clearShowHome()
 }

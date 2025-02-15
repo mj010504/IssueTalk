@@ -31,5 +31,6 @@ class AuthRepositoryImpl @Inject constructor(
 
     override fun getShowHome() = localDataSource.getShowHome()
 
+    override fun clearShowHome() = localDataSource.clearShowHome()
 
 }
