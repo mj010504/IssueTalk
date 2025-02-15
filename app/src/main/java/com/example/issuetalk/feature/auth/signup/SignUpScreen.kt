@@ -1,8 +1,8 @@
 package com.example.issuetalk.feature.auth.signup
 
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -58,8 +59,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,7 +67,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.issuetalk.R
 import com.example.issuetalk.core.common.util.clickWithNoneRipple
-import com.example.issuetalk.core.common.util.clickWithRipple
 import com.example.issuetalk.core.designsystem.component.checkDialog
 import com.example.issuetalk.core.designsystem.theme.lightRed
 import com.example.issuetalk.core.designsystem.theme.primaryColor
@@ -83,19 +81,22 @@ fun SignUpRoute(
     navigateToHome: () -> Unit,
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val nameText by viewModel.nameText.collectAsStateWithLifecycle()
     val isNameValid by viewModel.isNameValid.collectAsStateWithLifecycle()
     val gender by viewModel.gender.collectAsStateWithLifecycle()
     val birthYear by viewModel.birthYear.collectAsStateWithLifecycle()
-
     var dialogMessage by remember { mutableStateOf<String?>(null) }
 
 
     LaunchedEffect(true) {
         viewModel.eventChannel.collect { event ->
             when (event) {
-                is SignUpViewModel.SignUpEvent.NavigateToHome -> navigateToHome()
-                is SignUpViewModel.SignUpEvent.ShowDialog -> dialogMessage = event.message
+                is SignUpViewModel.SignUpEvent.SignUpSuccess -> {
+                    navigateToHome()
+                    Toast.makeText(context,"회원가입에 성공했습니다!", Toast.LENGTH_SHORT).show()
+                }
+                is SignUpViewModel.SignUpEvent.SignUpFailure -> dialogMessage = event.message
             }
         }
     }
@@ -135,7 +136,7 @@ fun SignUpScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     var showBottomBirthYearSheet by remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState()
-    val signUpAvailability = isNameValid && gender != null && birthYear.isNotEmpty()
+    val signUpAvailability = isNameValid && gender != Gender.NONE && birthYear.isNotEmpty()
 
     Column(
         modifier = Modifier
