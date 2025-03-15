@@ -47,5 +47,5 @@
 ## 피그마 링크
 ![피그마](https://github.com/user-attachments/assets/0e5dc057-917f-4cd0-922c-e9b933a5d61e)
 
-https://www.figma.com/design/r3EabHOe6nGWaBUIrt1RH2/IssueTalk?node-id=0-1&node-type=CANVAS&t=8KBNuL5FtkZLp06E-0
+[피그마 보러가기](https://www.figma.com/design/r3EabHOe6nGWaBUIrt1RH2/IssueTalk?node-id=0-1&node-type=CANVAS&t=8KBNuL5FtkZLp06E-0)
 
