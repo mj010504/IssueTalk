@@ -17,19 +17,38 @@
 3. **게시글 작성**: 주제에 대한 게시글을 작성
 4. **댓글 작성**: 게시글에 대한 댓글 작성 가능
 
-<br><br>
-![image](https://github.com/user-attachments/assets/57145093-6457-4155-a081-40640cc32fad)
-<br><br>
-![주제](https://github.com/user-attachments/assets/0e642aaa-452d-4ac4-90d2-4e7dd556df86)
-<br><br>
-![주제 화면](https://github.com/user-attachments/assets/d6f8da63-8104-4745-8d89-d187441f172b)
-<br><br>
-![주제 - 게시글](https://github.com/user-attachments/assets/1e91352e-2acd-4a74-a848-f6664a8b674b)
-<br><br>
-![게시글](https://github.com/user-attachments/assets/6d708a17-5632-43be-a1d2-7b708e6f352c)
+<div align="center">
+
+<table>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/57145093-6457-4155-a081-40640cc32fad" width="400"></td>
+  </tr>
+</table>
+
+</div>
+
+<br>
+
+<table>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/0e642aaa-452d-4ac4-90d2-4e7dd556df86" width="400"></td>
+    <td style="width: 30px;"></td>
+    <td><img src="https://github.com/user-attachments/assets/d6f8da63-8104-4745-8d89-d187441f172b" width="400"></td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/1e91352e-2acd-4a74-a848-f6664a8b674b" width="400"></td>
+    <td style="width: 30px;"></td>
+    <td><img src="https://github.com/user-attachments/assets/131d6be4-1152-495c-8806-8a44d914ebc7" width="400"></td>
+  </tr>
+</table>
 
 
-<br><br><br>
+<br>
 
 ## 개발 환경
 - **앱 개발**: Android Studio
@@ -45,7 +64,6 @@
 <br><br><br>
 
 ## 피그마 링크
-![피그마](https://github.com/user-attachments/assets/0e5dc057-917f-4cd0-922c-e9b933a5d61e)
 
 [피그마 보러가기](https://www.figma.com/design/r3EabHOe6nGWaBUIrt1RH2/IssueTalk?node-id=0-1&node-type=CANVAS&t=8KBNuL5FtkZLp06E-0)
 
