@@ -39,6 +39,7 @@
 - **데이터베이스**: Firebase FireStore
 - **아키텍처**: MVVM
 - **DI**: Hilt
+- Coroutine, Flow
 
 
 <br><br><br>
